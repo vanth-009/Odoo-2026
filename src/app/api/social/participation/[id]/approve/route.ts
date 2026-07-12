@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+// PATCH /api/social/participation/[id]/approve
+// Approve a participation if status is PENDING
 export async function PATCH(
   request: NextRequest,
   context: RouteContext

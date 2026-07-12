@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+// GET /api/social/participation/[id]
+// Get a single participation with full details
 export async function GET(
   request: NextRequest,
   context: RouteContext
@@ -55,6 +57,8 @@ export async function GET(
   }
 }
 
+// PUT /api/social/participation/[id]
+// Update hoursContributed, proofUrl, feedback, rating (1-5)
 export async function PUT(
   request: NextRequest,
   context: RouteContext
@@ -117,7 +121,7 @@ export async function PUT(
       );
     }
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     if (body.hoursContributed !== undefined) updateData.hoursContributed = Number(body.hoursContributed);
     if (body.proofUrl !== undefined) updateData.proofUrl = body.proofUrl;
     if (body.feedback !== undefined) updateData.feedback = body.feedback;

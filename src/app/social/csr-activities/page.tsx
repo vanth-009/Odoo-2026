@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Calendar, Award, CheckCircle2, Clock, PlayCircle, X } from 'lucide-react';
+import JoinActivityModal from '@/components/JoinActivityModal';
+import { useToast } from '@/components/Toast';
 
 interface CSRActivity {
   id: number;
@@ -11,6 +13,7 @@ interface CSRActivity {
   endDate: string;
   status: 'UPCOMING' | 'ONGOING' | 'COMPLETED';
   xpReward: number;
+  imageUrl?: string;
   category: {
     id: number;
     name: string;
@@ -32,6 +35,12 @@ export default function CSRActivitiesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Join Modal State
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null);
+  const [selectedActivityTitle, setSelectedActivityTitle] = useState('');
+  const { toast } = useToast();
   
   // Form state
   const [newActivity, setNewActivity] = useState({
@@ -204,16 +213,22 @@ export default function CSRActivitiesPage() {
             const StatusIcon = statusConfig.icon;
             
             return (
-              <div key={activity.id} className="border border-white/10 bg-white/5 rounded-xl p-6 hover:border-white/20 transition-colors group flex flex-col backdrop-blur-md">
-                <div className="flex justify-between items-start mb-4 gap-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    {activity.category?.name || 'Uncategorized'}
-                  </span>
-                  <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}>
-                    <StatusIcon className="w-3 h-3 mr-1" />
-                    {activity.status}
+              <div key={activity.id} className="border border-white/10 bg-white/5 rounded-xl hover:border-white/20 transition-colors group flex flex-col backdrop-blur-md overflow-hidden">
+                {activity.imageUrl && (
+                  <div className="w-full h-40 bg-black/40 relative shrink-0">
+                    <img src={activity.imageUrl} alt={activity.title} className="w-full h-full object-cover" />
                   </div>
-                </div>
+                )}
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex justify-between items-start mb-4 gap-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {activity.category?.name || 'Uncategorized'}
+                    </span>
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}>
+                      <StatusIcon className="w-3 h-3 mr-1" />
+                      {activity.status}
+                    </div>
+                  </div>
                 
                 <h4 className="text-base font-semibold text-white mb-2 line-clamp-1 group-hover:text-emerald-400 transition-colors">
                   {activity.title}
@@ -232,6 +247,19 @@ export default function CSRActivitiesPage() {
                     <Award className="w-3.5 h-3.5 mr-1.5" />
                     {activity.xpReward} XP Reward
                   </div>
+                </div>
+                
+                <button 
+                  disabled={activity.status === 'COMPLETED'}
+                  onClick={() => {
+                    setSelectedActivityId(activity.id);
+                    setSelectedActivityTitle(activity.title);
+                    setIsJoinModalOpen(true);
+                  }}
+                  className={`w-full py-2.5 rounded-lg font-bold transition-colors mt-6 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-sm ${activity.status === 'COMPLETED' ? 'bg-white/10 text-slate-400 cursor-not-allowed shadow-none' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
+                >
+                  {activity.status === 'COMPLETED' ? 'Completed' : 'Join Activity'}
+                </button>
                 </div>
               </div>
             );
@@ -395,6 +423,16 @@ export default function CSRActivitiesPage() {
           </div>
         </div>
       )}
+      {/* Join Activity Modal */}
+      <JoinActivityModal 
+        isOpen={isJoinModalOpen}
+        onClose={() => setIsJoinModalOpen(false)}
+        activityId={selectedActivityId}
+        activityTitle={selectedActivityTitle}
+        onSuccess={() => {
+          toast(`Successfully joined ${selectedActivityTitle}.`, "success");
+        }}
+      />
     </div>
   );
 }
