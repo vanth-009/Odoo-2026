@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+
+type RouteContext = { params: Promise<{ id: string }> };
+
+export async function PATCH(
+  request: NextRequest,
+  context: RouteContext
+) {
+  try {
+    const { id } = await context.params;
+    const participationId = parseInt(id, 10);
+
+    if (isNaN(participationId)) {
+      return NextResponse.json(
+        { error: 'Invalid participation ID. Must be a number.' },
+        { status: 400 }
+      );
+    }
+
+    const participation = await prisma.employeeParticipation.findUnique({
+      where: { id: participationId },
+      include: {
+        activity: true,
+      },
+    });
+
+    if (!participation) {
+      return NextResponse.json(
+        { error: `Participation with id ${participationId} not found.` },
+        { status: 404 }
+      );
+    }
+
+    if (participation.approvalStatus !== 'PENDING') {
+      return NextResponse.json(
+        {
+          error: `Cannot approve participation with status "${participation.approvalStatus}". Only PENDING participations can be approved.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const updated = await prisma.employeeParticipation.update({
+      where: { id: participationId },
+      data: {
+        approvalStatus: 'APPROVED',
+        approvalDate: new Date(),
+        approvedBy: 'Admin',
+        pointsEarned: participation.activity.xpReward ?? 0,
+      },
+      include: {
+        employee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            department: true,
+          },
+        },
+        activity: {
+          select: {
+            id: true,
+            title: true,
+            xpReward: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      data: updated,
+      message: 'Participation approved successfully',
+    });
+  } catch (error) {
+    console.error('Error approving participation:', error);
+    return NextResponse.json(
+      { error: 'Failed to approve participation' },
+      { status: 500 }
+    );
+  }
+}

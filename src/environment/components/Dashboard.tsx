@@ -152,43 +152,26 @@ export default function EnvironmentDashboard({ initialData }: DashboardProps) {
               Environmental Reports
             </a>
             
-            {/* Locked Modules with clean layout */}
+            {/* Active ESG Modules */}
             <div className="pt-6 pb-2 px-3 text-[8.5px] uppercase font-bold tracking-widest text-zinc-500">
-              Other Systems
+              ESG Systems
             </div>
 
-            <div 
-              className="flex items-center justify-between px-3 py-2 text-zinc-500 rounded-lg text-xs font-medium cursor-not-allowed border border-transparent hover:bg-zinc-900/10 group"
-              title="Assigned to Social Responsibility Team"
+            <a 
+              href="/social" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
             >
-              <span className="flex items-center gap-3">
-                <Users2 className="w-4 h-4 text-zinc-650 group-hover:text-zinc-500 transition-colors" />
-                Social System
-              </span>
-              <span className="text-[7.5px] bg-[#18181b] text-zinc-600 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Locked</span>
-            </div>
+              <Users2 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Social Console
+            </a>
 
-            <div 
-              className="flex items-center justify-between px-3 py-2 text-zinc-500 rounded-lg text-xs font-medium cursor-not-allowed border border-transparent hover:bg-zinc-900/10 group"
-              title="Assigned to Corporate Governance Team"
+            <a 
+              href="/governance" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
             >
-              <span className="flex items-center gap-3">
-                <Landmark className="w-4 h-4 text-zinc-650 group-hover:text-zinc-500 transition-colors" />
-                Governance System
-              </span>
-              <span className="text-[7.5px] bg-[#18181b] text-zinc-600 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Locked</span>
-            </div>
-
-            <div 
-              className="flex items-center justify-between px-3 py-2 text-zinc-500 rounded-lg text-xs font-medium cursor-not-allowed border border-transparent hover:bg-zinc-900/10 group"
-              title="Assigned to Gamification Team"
-            >
-              <span className="flex items-center gap-3">
-                <Gamepad2 className="w-4 h-4 text-zinc-650 group-hover:text-zinc-500 transition-colors" />
-                Gamification System
-              </span>
-              <span className="text-[7.5px] bg-[#18181b] text-zinc-600 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Locked</span>
-            </div>
+              <Landmark className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Governance Console
+            </a>
           </nav>
         </div>
 

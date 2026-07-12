@@ -342,6 +342,27 @@ export default function ReportsManager({
               <FileSpreadsheet className="w-4 h-4 text-emerald-450" />
               Environmental Reports
             </a>
+
+            {/* Active ESG Modules */}
+            <div className="pt-6 pb-2 px-3 text-[9px] uppercase font-bold tracking-widest text-zinc-500">
+              ESG Systems
+            </div>
+
+            <a 
+              href="/social" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
+            >
+              <Users2 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Social Console
+            </a>
+
+            <a 
+              href="/governance" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
+            >
+              <Landmark className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Governance Console
+            </a>
           </nav>
         </div>
 
