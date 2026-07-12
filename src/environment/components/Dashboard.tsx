@@ -237,8 +237,8 @@ export default function EnvironmentDashboard({ initialData }: DashboardProps) {
               Environmental Reports
             </a>
             
-            {/* Active ESG Modules */}
-            <div className="pt-6 pb-2 px-3 text-[8.5px] uppercase font-bold tracking-widest text-zinc-500">
+            {/* Active ESG Modules switcher */}
+            <div className="pt-6 pb-2 px-3 text-[9px] uppercase font-bold tracking-widest text-zinc-500">
               ESG Systems
             </div>
 
@@ -264,6 +264,22 @@ export default function EnvironmentDashboard({ initialData }: DashboardProps) {
             >
               <Trophy className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
               Gamification Hub
+            </a>
+
+            <a 
+              href="/reports" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
+            >
+              <BarChart3 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Data Architecture
+            </a>
+
+            <a 
+              href="/settings" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
+            >
+              <Settings2 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              System Config
             </a>
           </nav>
         </div>

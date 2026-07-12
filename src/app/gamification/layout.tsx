@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Trophy, LayoutDashboard, Target, Users, Landmark, 
-  Award, ShieldAlert, FileText, Settings, Gift, BarChart2
+  Award, ShieldAlert, FileText, Settings, Gift, BarChart2,
+  Users2, Shield, BarChart3, Settings2
 } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
@@ -96,6 +97,56 @@ export default function GamificationLayout({
                   </Link>
                 );
               })}
+            </nav>
+
+            {/* Active ESG Modules switcher */}
+            <div className="pt-6 pb-2 px-2 text-[8.5px] uppercase font-bold tracking-widest text-zinc-550 border-t border-white/5">
+              ESG Systems
+            </div>
+
+            <nav className="space-y-1">
+              <Link 
+                href="/environment" 
+                className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+              >
+                <Landmark className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+                Environmental Console
+              </Link>
+              <Link 
+                href="/social" 
+                className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+              >
+                <Users2 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+                Social Console
+              </Link>
+              <Link 
+                href="/governance" 
+                className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+              >
+                <Shield className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+                Governance Console
+              </Link>
+              <Link 
+                href="/gamification" 
+                className="flex items-center gap-3 px-3 py-2 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs font-semibold relative transition-all duration-200 group"
+              >
+                <Trophy className="w-4 h-4 text-emerald-400" />
+                Gamification Hub
+              </Link>
+              <Link 
+                href="/reports" 
+                className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+              >
+                <BarChart3 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+                Data Architecture
+              </Link>
+              <Link 
+                href="/settings" 
+                className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+              >
+                <Settings2 className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+                System Config
+              </Link>
             </nav>
           </div>
 
