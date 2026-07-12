@@ -11,6 +11,7 @@ const tabs = [
   { label: "Participation", href: "/social/participation" },
   { label: "Diversity", href: "/social/diversity" },
   { label: "Engagement & Training", href: "/social/engagement" },
+  { label: "Reports", href: "/social/reports" },
 ];
 
 export default function SocialLayout({
