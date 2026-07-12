@@ -174,7 +174,7 @@ function ReportsPageContent() {
     // 1. Environmental carbon transactions
     envTransactions.forEach(t => {
       records.push({
-        id: `env-${t.id.toString().slice(0, 6)}`,
+        id: `env-${String(t.id).slice(0, 6)}`,
         module: 'Environmental',
         category: 'Carbon Offset',
         title: `Carbon calculation for product: ${t.productName || 'General'}`,
@@ -190,7 +190,7 @@ function ReportsPageContent() {
     // 2. Social CSR Activities
     socialActivities.forEach(act => {
       records.push({
-        id: `soc-${act.id.toString().slice(0, 6)}`,
+        id: `soc-${String(act.id).slice(0, 6)}`,
         module: 'Social',
         category: 'CSR Activities',
         title: act.title || act.activityName || 'Volunteer Event',
@@ -206,7 +206,7 @@ function ReportsPageContent() {
     // 3. Governance policies
     govPolicies.forEach(p => {
       records.push({
-        id: `gov-pol-${p.id.toString().slice(0, 6)}`,
+        id: `gov-pol-${String(p.id).slice(0, 6)}`,
         module: 'Governance',
         category: 'Policies & Standards',
         title: p.title || p.policyName || '',
@@ -222,7 +222,7 @@ function ReportsPageContent() {
     // 4. Governance compliance audits
     govAudits.forEach(a => {
       records.push({
-        id: `gov-aud-${a.id.toString().slice(0, 6)}`,
+        id: `gov-aud-${String(a.id).slice(0, 6)}`,
         module: 'Governance',
         category: 'Compliance Audits',
         title: a.name,
@@ -238,7 +238,7 @@ function ReportsPageContent() {
     // 5. Governance compliance issues
     govCompliance.forEach(i => {
       records.push({
-        id: `gov-comp-${i.id.toString().slice(0, 6)}`,
+        id: `gov-comp-${String(i.id).slice(0, 6)}`,
         module: 'Governance',
         category: 'Compliance Issues',
         title: i.title,
@@ -254,7 +254,7 @@ function ReportsPageContent() {
     // 6. Gamification XP transactions
     gameXP.forEach(x => {
       records.push({
-        id: `game-xp-${x.id.toString().slice(0, 6)}`,
+        id: `game-xp-${String(x.id).slice(0, 6)}`,
         module: 'Gamification',
         category: 'Gamification XP',
         title: x.activityName,
