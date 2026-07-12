@@ -38,8 +38,8 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = "ma
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full ${maxWidth} bg-card rounded shadow-xl animate-fade-in-up border border-border overflow-hidden flex flex-col max-h-[90vh]`}>
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
+      <div className={`relative w-full ${maxWidth} bg-[#09090b] backdrop-blur-xl rounded border-white/10 shadow-xl animate-fade-in-up border border-border overflow-hidden flex flex-col max-h-[90vh]`}>
+        <div className="flex items-center justify-between p-4 border-b border-border bg-white/5 border-white/10">
           <h2 className="text-lg font-bold text-foreground">{title}</h2>
           <button 
             onClick={onClose}
