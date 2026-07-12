@@ -1,70 +1,90 @@
-# Ecosphere: Social & Environmental Module
+# EcoSphere.OS 🌍
 
-Ecosphere is a comprehensive dashboard module designed to track, manage, and analyze a company's Corporate Social Responsibility (CSR) initiatives, workforce diversity, employee engagement, and compliance training. Built with modern web technologies, it features a premium glassmorphic UI and robust data integration.
+EcoSphere.OS is a comprehensive, enterprise-grade ESG (Environmental, Social, and Governance) intelligence platform. Built with modern web technologies, it features a premium glassmorphic UI, robust data integration, and gamified employee engagement mechanics.
 
-## 🌟 Key Features
+## 🌟 Platform Modules
 
-### 1. Social Ledger Matrix (Overview Dashboard)
-A unified command center providing a high-level view of all social and environmental metrics:
-- **Active CSR Initiatives**: A visual showcase of ongoing community and environmental projects.
+### 1. 🍃 Environmental Matrix
+Track and manage your organization's ecological footprint.
+- **Carbon Hotspots**: Visualize emissions data across departments.
+- **Product Lifecycle Analysis**: Track carbon offset and emissions per product.
+- **Sustainability Goals**: Real-time progress tracking toward Net-Zero targets.
+
+### 2. 👥 Social Ledger
+Manage CSR initiatives, workforce diversity, and employee engagement.
+- **CSR Activities**: Browse, join, and log participation in community/environmental projects.
 - **Diversity Index**: Live, dynamically calculated Shannon Diversity Index based on real-time workforce data (Gender, Ethnicity, Age distributions).
-- **Engagement Sentiment**: Live employee survey scores measuring Work-Life Balance, Team Collaboration, and Management Support.
-- **Compliance Training Track**: Real-time tracking of mandatory corporate training completions.
-- **Admin Verification Queue**: A centralized hub for admins to verify and approve employee participation in CSR events.
+- **Engagement & Training**: Live survey scores and compliance training trackers.
 
-### 2. CSR Activities Management
-A dedicated module to browse and join corporate social responsibility programs:
-- View all `UPCOMING`, `ONGOING`, and `COMPLETED` activities.
-- High-quality visual cards detailing location, dates, XP rewards, and participant capacity.
-- **Join Workflow**: Employees can sign up for activities and log expected contribution hours and proof. Requests are queued for admin approval.
+### 3. 🛡️ Governance Audit
+A centralized hub for compliance and corporate policies.
+- **Policies & Standards**: Track publication states (Active, Draft, Expired).
+- **Compliance Audits**: Monitor departmental governance scores and compliance findings.
+
+### 4. 🏆 Impact Gamification
+Drive employee engagement through gamified sustainability.
+- **Eco-Challenges**: Participate in sustainability challenges to earn XP.
+- **Leaderboards**: Departmental and individual rankings based on eco-contributions.
+- **Badges**: Unlock achievement badges (e.g., "Zero Waste Hero").
+
+### 5. 📊 Data Architecture (Reports)
+A unified reporting engine for exporting platform metrics.
+- Export Environmental, Social, and Governance data to PDF, Excel, and CSV formats.
+
+---
 
 ## 🛠 Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) with custom glassmorphism utilities
 - **Database ORM**: [Prisma](https://www.prisma.io/)
-- **Database**: SQLite (Local Development)
+- **Database**: SQLite (Configured for seamless local evaluation)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Fonts**: Plus Jakarta Sans & JetBrains Mono
+- **Charts**: [Recharts](https://recharts.org/)
 
-## 🚀 Getting Started
+---
+
+## 🚀 Guide for Evaluators: Running Locally
+
+Follow these precise steps to get the full EcoSphere.OS platform running on your local machine. The database is pre-configured to use SQLite, meaning no external database installation or API keys are required!
 
 ### Prerequisites
-Make sure you have Node.js (v18+) and npm/yarn/pnpm installed.
+Make sure you have **Node.js (v18+)** installed.
 
-### 1. Install Dependencies
+### Step 1: Install Dependencies
+Open your terminal in the project root and install all required packages:
 ```bash
 npm install
 ```
 
-### 2. Setup the Database
-This project uses Prisma with a local SQLite database. 
-First, generate the Prisma client and push the schema to the database:
+### Step 2: Initialize the Database
+Generate the Prisma client and push the schema to create your local SQLite database file:
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-Next, populate the database with seed data (Employees, CSR Activities, Surveys, etc.):
+### Step 3: Seed the Database
+To fully experience the dynamic dashboards, you must populate the database with our rich mock data. Run the following seed scripts in order:
+
 ```bash
+# Seed Environmental, Gamification, and Governance data
+node prisma/seed.js
+
+# Seed Social, Diversity, and CSR data
 node prisma/seed_social.js
 ```
 
-### 3. Run the Development Server
-Start the Next.js development server:
+*(Note: All charts, diversity indices, and progress bars on the dashboards are 100% dynamically driven by this seeded database data—nothing is hardcoded!)*
+
+### Step 4: Start the Application
+Run the Next.js development server:
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The Social Module is accessible at `http://localhost:3000/social`.
+### Step 5: Explore the Platform
+Open your browser and navigate to **[http://localhost:3000](http://localhost:3000)**. 
+Use the **Global Sidebar** on the left to navigate seamlessly between the Environmental, Social, Governance, and Gamification consoles. 
 
-## 🎨 UI Architecture
-The UI relies heavily on a custom design system implemented in `src/app/globals.css`. It features:
-- **Glassmorphism**: `.glass-panel`, `.glass-panel-glow`
-- **Ambient Lighting**: `.ambient-glow-1`, `.ambient-glow-2`
-- **Micro-interactions**: `.transition-premium`, `.btn-premium`
-
-All data rendered on the dashboards (including the Diversity Index and Training Progress) is **100% dynamic** and fetched live from the Prisma database—no hardcoded charts.
-
----
-*Built as a feature integration for the Environmental/Social Module branch.*
+Enjoy exploring EcoSphere.OS! 🌍
