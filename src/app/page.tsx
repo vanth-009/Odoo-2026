@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, CartesianGrid } from "recharts";
-import { TrendingUp, Award, Target, Droplets, Users, Shield, ArrowUpRight, Zap, FileText, Bot, Send, User } from "lucide-react";
+import { TrendingUp, Award, Target, Droplets, Users, Shield, ArrowUpRight, Zap, FileText, Bot, Send, User, Activity } from "lucide-react";
 import { useToast } from "@/components/Toast";
 import Modal from "@/components/Modal";
 
@@ -17,11 +17,11 @@ const trendData = [
 ];
 
 const deptData = [
-  { name: 'Logistics', score: 88, fill: '#059669' },
-  { name: 'Sales', score: 72, fill: '#2563eb' },
-  { name: 'Manufacturing', score: 64, fill: '#dc2626' },
-  { name: 'Corporate', score: 94, fill: '#059669' },
-  { name: 'R&D', score: 82, fill: '#d97706' },
+  { name: 'Log', score: 88, fill: '#10b981' },
+  { name: 'Sls', score: 72, fill: '#0ea5e9' },
+  { name: 'Mfg', score: 64, fill: '#f43f5e' },
+  { name: 'Corp', score: 94, fill: '#10b981' },
+  { name: 'R&D', score: 82, fill: '#f59e0b' },
 ];
 
 export default function Dashboard() {
@@ -30,19 +30,12 @@ export default function Dashboard() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiMessage, setAiMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([
-    { role: 'ai', text: 'ERP Assistant Ready. I noticed your Logistics emissions dropped 12% this quarter. How can I assist with this data?' }
+    { role: 'ai', text: 'EcoSphere Neural Engine online. Logistics telemetry indicates a 12% drop in carbon output this quarter. Should I compile a variance report?' }
   ]);
 
   useEffect(() => {
     setLoaded(true);
   }, []);
-
-  const handleExport = () => {
-    toast("Generating CSV Export...", "info");
-    setTimeout(() => {
-      toast("Export complete.", "success");
-    }, 2000);
-  };
 
   const handleSendAiMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,244 +45,261 @@ export default function Dashboard() {
     setAiMessage("");
     
     setTimeout(() => {
-      setChatHistory(prev => [...prev, { role: 'ai', text: 'Simulated response: Database querying suggests optimizing Sector B supply chains could yield another 4% reduction in Scope 3.' }]);
-    }, 1000);
+      setChatHistory(prev => [...prev, { role: 'ai', text: 'Analysis complete: Vector modeling suggests re-routing Sector B supply chains through node 4 could yield an additional 4.2% reduction in Scope 3 emissions.' }]);
+    }, 1200);
   };
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-12">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6 border-b border-border pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">ESG Master Dashboard</h2>
-          <p className="text-sm text-muted-foreground mt-1">Enterprise performance overview across all tracked modules.</p>
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Global Overview Matrix</h2>
+          <p className="text-sm font-mono text-muted-foreground mt-2 uppercase tracking-widest">ESG Telemetry / Live Stream</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={handleExport} className="bg-background border border-border px-3 py-1.5 rounded text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2 text-foreground">
-            <FileText size={14} />
-            Export CSV
+        <div className="flex gap-3">
+          <button onClick={() => toast("Exporting core dump...", "info")} className="erp-panel px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 text-foreground active:scale-95">
+            <FileText size={16} />
+            Data Dump (CSV)
           </button>
-          <button onClick={() => setIsAiModalOpen(true)} className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-sm">
-            <Bot size={14} />
-            Query Data
+          <button onClick={() => setIsAiModalOpen(true)} className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center gap-2 active:scale-95 border border-emerald-400">
+            <Zap size={16} fill="currentColor" />
+            Neural Query
           </button>
         </div>
       </div>
 
-      {/* Hero Row: Bento Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* ESG Main Gauge */}
-        <div className="lg:col-span-4 erp-panel p-5 rounded-md flex flex-col items-center justify-center relative overflow-hidden group">
-          <div className="w-full flex justify-between items-start mb-4 z-10">
-            <h3 className="font-semibold text-sm">Aggregate Index Score</h3>
-            <span className="px-2 py-0.5 rounded text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30 text-[10px] font-bold uppercase tracking-wider border border-emerald-200 dark:border-emerald-800">
-              LEADER
+      {/* Hero Row: Asymmetrical Bento */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Core Index Node */}
+        <div className="lg:col-span-5 erp-panel p-6 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+          
+          <div className="w-full flex justify-between items-start mb-2 z-10">
+            <h3 className="font-bold text-base tracking-wide">Aggregate Index Node</h3>
+            <span className="px-2.5 py-1 rounded bg-primary/20 text-primary text-[10px] font-mono font-bold uppercase tracking-widest border border-primary/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+              TIER 1 LEADER
             </span>
           </div>
           
-          <div className="relative w-40 h-40 flex items-center justify-center z-10 my-2">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle className="text-muted" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" strokeWidth="8"></circle>
+          <div className="relative w-48 h-48 flex items-center justify-center z-10 my-4">
+            <svg className="w-full h-full -rotate-90 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]" viewBox="0 0 100 100">
+              <circle className="text-muted" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" strokeWidth="6"></circle>
               <circle 
-                className="text-primary transition-all duration-1000 ease-out" 
+                className="text-primary transition-all duration-[2000ms] ease-out" 
                 cx="50" cy="50" fill="transparent" r="42" 
-                stroke="currentColor" 
-                strokeLinecap="round" strokeWidth="8"
+                stroke="url(#grad1)" 
+                strokeLinecap="round" strokeWidth="6"
                 strokeDasharray="264"
                 strokeDashoffset={loaded ? 264 - (81 / 100) * 264 : 264}
               ></circle>
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#0ea5e9" />
+                </linearGradient>
+              </defs>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-bold text-foreground">81</span>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest mt-0.5">/ 100</span>
+              <span className="text-5xl font-extrabold text-foreground tracking-tighter">81<span className="text-xl text-muted-foreground font-normal">.2</span></span>
+              <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest mt-1">Global Score</span>
             </div>
           </div>
           
-          <div className="mt-4 grid grid-cols-3 w-full text-center divide-x divide-border z-10 bg-muted rounded border border-border p-2">
+          <div className="mt-4 grid grid-cols-3 w-full text-center divide-x divide-border z-10 bg-muted/50 rounded-xl border border-border p-3 backdrop-blur-sm">
             <div>
-              <p className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-xs"><ArrowUpRight size={12} /> 2.4%</p>
-              <p className="text-[9px] text-muted-foreground uppercase mt-0.5">YoY Var</p>
+              <p className="text-primary font-bold flex items-center justify-center text-sm"><ArrowUpRight size={14} /> 2.4%</p>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">YoY Delta</p>
             </div>
             <div>
-              <p className="text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center gap-1 text-xs"><Award size={12} /> Gold</p>
-              <p className="text-[9px] text-muted-foreground uppercase mt-0.5">Status</p>
+              <p className="text-sky-500 font-bold flex items-center justify-center gap-1 text-sm"><Award size={14} /> Peak</p>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">Status</p>
             </div>
             <div>
-              <p className="text-amber-600 dark:text-amber-500 font-bold text-xs">92nd</p>
-              <p className="text-[9px] text-muted-foreground uppercase mt-0.5">PCTL</p>
+              <p className="text-amber-500 font-bold text-sm">92.4</p>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">PCTL Node</p>
             </div>
           </div>
         </div>
 
-        {/* Three Pillar KPIs */}
-        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Environmental */}
-          <div className="erp-panel p-4 rounded-md border-t-2 border-t-emerald-500 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded">
-                <Droplets size={20} />
+        {/* Dynamic Nodes Stack */}
+        <div className="lg:col-span-7 grid grid-rows-3 gap-6">
+          {/* Environmental Array */}
+          <div className="erp-panel px-6 py-4 rounded-2xl border-l-4 border-l-primary flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-inner">
+                <Droplets size={24} />
               </div>
-              <span className="text-lg font-bold text-foreground">82<span className="text-xs text-muted-foreground font-normal">/100</span></span>
-            </div>
-            <h4 className="font-semibold text-sm mb-1">Environmental</h4>
-            <p className="text-xs text-muted-foreground mb-4 flex-1">Scope 1 Emissions & Water Stewardship index.</p>
-            <div>
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: loaded ? '82%' : '0%' }}></div>
-              </div>
-              <div className="flex items-center text-emerald-700 dark:text-emerald-400 text-[10px] font-medium bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-fit border border-emerald-100 dark:border-emerald-800">
-                <TrendingUp size={10} className="mr-1" /> Trending positive
+              <div>
+                <h4 className="font-extrabold text-lg text-foreground mb-0.5 group-hover:text-primary transition-colors">Environmental Matrix</h4>
+                <p className="text-xs font-mono text-muted-foreground">Scope 1-3 emissions & resource architecture.</p>
               </div>
             </div>
-          </div>
-
-          {/* Social */}
-          <div className="erp-panel p-4 rounded-md border-t-2 border-t-blue-500 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded">
-                <Users size={20} />
-              </div>
-              <span className="text-lg font-bold text-foreground">74<span className="text-xs text-muted-foreground font-normal">/100</span></span>
-            </div>
-            <h4 className="font-semibold text-sm mb-1">Social</h4>
-            <p className="text-xs text-muted-foreground mb-4 flex-1">D&I tracking and community hours logged.</p>
-            <div>
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: loaded ? '74%' : '0%' }}></div>
-              </div>
-              <div className="flex items-center text-amber-700 dark:text-amber-400 text-[10px] font-medium bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded w-fit border border-amber-100 dark:border-amber-800">
-                Below target Q2
+            <div className="text-right">
+              <div className="text-2xl font-extrabold text-foreground mb-1">82<span className="text-sm text-muted-foreground font-normal">/100</span></div>
+              <div className="flex items-center gap-1.5 justify-end">
+                <TrendingUp size={14} className="text-primary" />
+                <span className="text-[10px] font-mono font-bold text-primary tracking-widest uppercase">Target Lock</span>
               </div>
             </div>
           </div>
 
-          {/* Governance */}
-          <div className="erp-panel p-4 rounded-md border-t-2 border-t-purple-500 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 rounded">
-                <Shield size={20} />
+          {/* Social Array */}
+          <div className="erp-panel px-6 py-4 rounded-2xl border-l-4 border-l-sky-500 flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center border border-sky-500/20 shadow-inner">
+                <Users size={24} />
               </div>
-              <span className="text-lg font-bold text-foreground">88<span className="text-xs text-muted-foreground font-normal">/100</span></span>
+              <div>
+                <h4 className="font-extrabold text-lg text-foreground mb-0.5 group-hover:text-sky-500 transition-colors">Social Ledger</h4>
+                <p className="text-xs font-mono text-muted-foreground">D&I tracking and community hours integration.</p>
+              </div>
             </div>
-            <h4 className="font-semibold text-sm mb-1">Governance</h4>
-            <p className="text-xs text-muted-foreground mb-4 flex-1">Audit readiness and compliance adherence.</p>
-            <div>
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-purple-500 rounded-full transition-all duration-1000" style={{ width: loaded ? '88%' : '0%' }}></div>
+            <div className="text-right">
+              <div className="text-2xl font-extrabold text-foreground mb-1">74<span className="text-sm text-muted-foreground font-normal">/100</span></div>
+              <div className="flex items-center gap-1.5 justify-end">
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                <span className="text-[10px] font-mono font-bold text-amber-500 tracking-widest uppercase">Deviation Detected</span>
               </div>
-              <div className="flex items-center text-emerald-700 dark:text-emerald-400 text-[10px] font-medium bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded w-fit border border-emerald-100 dark:border-emerald-800">
-                <Shield size={10} className="mr-1" /> Compliant
+            </div>
+          </div>
+
+          {/* Governance Array */}
+          <div className="erp-panel px-6 py-4 rounded-2xl border-l-4 border-l-purple-500 flex items-center justify-between group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center border border-purple-500/20 shadow-inner">
+                <Shield size={24} />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-lg text-foreground mb-0.5 group-hover:text-purple-500 transition-colors">Governance Audit</h4>
+                <p className="text-xs font-mono text-muted-foreground">Immutable compliance adherence and risk vectors.</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-extrabold text-foreground mb-1">88<span className="text-sm text-muted-foreground font-normal">/100</span></div>
+              <div className="flex items-center gap-1.5 justify-end">
+                <Shield size={14} className="text-primary" />
+                <span className="text-[10px] font-mono font-bold text-primary tracking-widest uppercase">Zero Variance</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Emissions Trend Line Chart */}
-        <div className="lg:col-span-8 erp-panel p-5 rounded-md">
-          <div className="flex justify-between items-center mb-6">
+      {/* Visual Analytics Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Intensity Sparkline */}
+        <div className="lg:col-span-8 erp-panel p-6 rounded-2xl flex flex-col">
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h3 className="font-semibold text-sm">Carbon Intensity Over Time</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Metric: tCO2e / $M Revenue</p>
+              <h3 className="font-bold text-lg">Carbon Intensity Trajectory</h3>
+              <p className="text-xs font-mono text-muted-foreground mt-1">tCO2e / $M Rev (Rolling 7-Month Average)</p>
             </div>
-            <div className="flex gap-1 bg-muted p-1 rounded border border-border">
-              <button className="px-2 py-0.5 text-xs bg-background rounded-sm font-medium text-foreground shadow-sm">YTD</button>
-              <button className="px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors" onClick={() => toast("Timeframe switching unavailable.", "info")}>1Y</button>
+            <div className="px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="text-xs font-bold text-primary">Live Tracking</span>
             </div>
           </div>
-          <div className="h-64 w-full">
+          <div className="flex-1 w-full min-h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 11}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 11}} />
+                <defs>
+                  <linearGradient id="gradientColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 12, fontFamily: 'monospace'}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 12, fontFamily: 'monospace'}} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--fg-color)' }}
-                  itemStyle={{ color: 'var(--fg-color)' }}
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', backdropFilter: 'blur(16px)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--fg-color)' }}
+                  itemStyle={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="target" stroke="var(--muted-fg)" strokeDasharray="4 4" fillOpacity={0} name="Target Limit" />
-                <Area type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} fillOpacity={0.1} fill="#059669" name="Actual Readings" />
+                <Area type="step" dataKey="target" stroke="var(--muted-fg)" strokeDasharray="4 4" fillOpacity={0} name="Threshold Limit" />
+                <Area type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#gradientColor)" name="Recorded Vector" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Recent Activity Feed */}
-        <div className="lg:col-span-4 erp-panel p-5 rounded-md flex flex-col">
-          <div className="flex justify-between items-center mb-4 border-b border-border pb-2">
-            <h3 className="font-semibold text-sm">System Log</h3>
-          </div>
-          
-          <div className="flex-1 space-y-4">
-            {/* Item 1 */}
-            <div className="flex items-start gap-3 group">
-              <div className="mt-0.5 w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-xs text-foreground cursor-pointer hover:underline" onClick={() => toast("Viewing record...", "info")}>Data Ingestion: Logistics</span>
-                  <span className="text-[10px] text-muted-foreground">10:42 AM</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Automated pull from SAP transportation module completed.</p>
-              </div>
+        {/* Network Mini-Monitor */}
+        <div className="lg:col-span-4 erp-panel p-6 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-lg">System Telemetry</h3>
+              <Activity size={18} className="text-muted-foreground" />
             </div>
             
-            {/* Item 2 */}
-            <div className="flex items-start gap-3 group">
-              <div className="mt-0.5 w-2 h-2 rounded-full bg-amber-500 shrink-0"></div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-xs text-foreground cursor-pointer hover:underline" onClick={() => toast("Viewing alert...", "info")}>System Alert: Governance</span>
-                  <span className="text-[10px] text-muted-foreground">08:15 AM</span>
+            <div className="space-y-6">
+              {/* Telemetry Nodes */}
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-medium">Logistics Core Sync</span>
+                  <span className="text-[10px] font-mono font-bold text-primary">SUCCESS_OK</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Vendor cert for 'Supplier B' is expiring in 15 days.</p>
+                <div className="w-full bg-muted rounded-full h-1">
+                  <div className="bg-primary h-full w-[100%] rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                </div>
               </div>
-            </div>
 
-            {/* Item 3 */}
-            <div className="flex items-start gap-3 group">
-              <div className="mt-0.5 w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-xs text-foreground cursor-pointer hover:underline" onClick={() => toast("Viewing batch...", "info")}>HR Sync: Training</span>
-                  <span className="text-[10px] text-muted-foreground">Yesterday</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-medium">HR Workday Pipeline</span>
+                  <span className="text-[10px] font-mono font-bold text-sky-500">PROCESSING (88%)</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Workday API integration updated diversity statistics.</p>
+                <div className="w-full bg-muted rounded-full h-1">
+                  <div className="bg-sky-500 h-full w-[88%] rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-medium">Vendor Audit Certificates</span>
+                  <span className="text-[10px] font-mono font-bold text-destructive">HALTED_ERR_403</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-1">
+                  <div className="bg-destructive h-full w-[45%] rounded-full shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
+                </div>
               </div>
             </div>
           </div>
           
-          <button onClick={() => toast("Opening full logs...", "info")} className="mt-4 w-full py-1.5 bg-muted border border-border hover:bg-background rounded text-xs font-medium transition-colors text-foreground">
-            View All Logs
-          </button>
+          <div className="mt-8 p-4 bg-background border border-border rounded-xl font-mono text-xs text-muted-foreground">
+            <p className="mb-1"><span className="text-primary">{'>'}</span> init secure_connection...</p>
+            <p className="mb-1"><span className="text-primary">{'>'}</span> handshake OK 43ms</p>
+            <p className="animate-pulse"><span className="text-primary">{'>'}</span> awaiting next packet_</p>
+          </div>
         </div>
       </div>
 
-      {/* AI Assistant Modal */}
-      <Modal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} title="ERP Data Query Assistant" maxWidth="max-w-2xl">
-        <div className="flex flex-col h-[50vh]">
-          <div className="flex-1 overflow-y-auto space-y-3 pb-4">
+      {/* Neural AI Modal */}
+      <Modal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} title="EcoSphere Neural Engine">
+        <div className="flex flex-col h-[60vh]">
+          <div className="flex-1 overflow-y-auto space-y-4 pb-4 px-2">
             {chatHistory.map((msg, idx) => (
-              <div key={idx} className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
-                <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${msg.role === 'ai' ? 'bg-primary/20 text-primary' : 'bg-muted border border-border text-foreground'}`}>
-                  {msg.role === 'ai' ? <Bot size={14} /> : <User size={14} />}
+              <div key={idx} className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'ai' ? 'bg-primary/20 text-primary border border-primary/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-muted border border-border text-foreground'}`}>
+                  {msg.role === 'ai' ? <Bot size={18} /> : <User size={18} />}
                 </div>
-                <div className={`p-2.5 rounded border text-sm ${msg.role === 'user' ? 'bg-primary border-primary text-primary-foreground' : 'bg-card border-border text-foreground'}`}>
+                <div className={`p-4 rounded-xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-primary border border-emerald-400 text-primary-foreground shadow-lg shadow-primary/20' : 'bg-background border border-border text-foreground font-mono text-xs'}`}>
                   {msg.text}
                 </div>
               </div>
             ))}
           </div>
-          <form onSubmit={handleSendAiMessage} className="mt-2 flex gap-2 border-t border-border pt-4">
+          <form onSubmit={handleSendAiMessage} className="mt-4 flex gap-3 border-t border-border pt-4">
             <input 
               value={aiMessage}
               onChange={(e) => setAiMessage(e.target.value)}
-              placeholder="Query database (e.g., 'Show me Q3 emissions variance')..." 
-              className="flex-1 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              placeholder="Input query command vector..." 
+              className="flex-1 bg-background border border-border rounded-lg px-4 py-3 text-sm font-mono focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
-            <button type="submit" disabled={!aiMessage.trim()} className="bg-primary text-primary-foreground px-4 py-2 rounded text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors">
-              Execute
+            <button type="submit" disabled={!aiMessage.trim()} className="bg-primary text-primary-foreground px-5 py-3 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center">
+              <Send size={18} />
             </button>
           </form>
         </div>

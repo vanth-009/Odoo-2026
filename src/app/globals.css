@@ -4,14 +4,15 @@
 
 @theme {
   --font-sans: "Inter", "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
   
   --color-background: var(--bg-color);
   --color-foreground: var(--fg-color);
   
-  --color-primary: #059669; /* Emerald 600 for ERP - more professional */
+  --color-primary: #10b981; /* Vibrant Emerald */
   --color-primary-foreground: #ffffff;
   
-  --color-destructive: #dc2626; /* Red 600 */
+  --color-destructive: #f43f5e; /* Rose */
   --color-destructive-foreground: #ffffff;
   
   --color-card: var(--card-bg);
@@ -19,44 +20,49 @@
   --color-muted: var(--muted-bg);
   --color-muted-foreground: var(--muted-fg);
   
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-fade-in-up: fade-in-up 0.3s ease-out;
-  --animate-slide-in-right: slide-in-right 0.3s ease-out;
+  --animate-fade-in: fade-in 0.4s ease-out;
+  --animate-fade-in-up: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-right: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   :root {
-    /* LIGHT MODE ERP VARIABLES */
-    --bg-color: #f3f4f6; /* Gray 100 for overall background */
-    --fg-color: #111827; /* Gray 900 for main text */
+    /* LIGHT MODE NEXT-GEN ERP */
+    --bg-color: #eef2f6; /* Faint slate/emerald tint instead of plain gray */
+    --fg-color: #0f172a; /* Slate 900 */
     
-    --card-bg: #ffffff;
-    --border-color: #e5e7eb; /* Gray 200 */
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --border-color: rgba(16, 185, 129, 0.15); /* Slightly emerald tinted border */
     
-    --muted-bg: #f9fafb; /* Gray 50 */
-    --muted-fg: #6b7280; /* Gray 500 */
+    --muted-bg: rgba(238, 242, 246, 0.8);
+    --muted-fg: #64748b;
     
-    --surface-hover: #f3f4f6;
+    --pattern-color: rgba(16, 185, 129, 0.12); /* Visible dot matrix in light mode */
+    --shadow-color: rgba(15, 23, 42, 0.08); /* Sharper shadows */
   }
   
   .dark {
-    /* DARK MODE ERP VARIABLES */
-    --bg-color: #111827; /* Gray 900 for overall background */
-    --fg-color: #f9fafb; /* Gray 50 for main text */
+    /* DARK MODE NEXT-GEN ERP */
+    --bg-color: #0a0a0e; /* Deep dark blue/black */
+    --fg-color: #f8fafc; /* Slate 50 */
     
-    --card-bg: #1f2937; /* Gray 800 */
-    --border-color: #374151; /* Gray 700 */
+    --card-bg: rgba(25, 25, 30, 0.6);
+    --border-color: rgba(255, 255, 255, 0.06);
     
-    --muted-bg: #374151; /* Gray 700 */
-    --muted-fg: #9ca3af; /* Gray 400 */
+    --muted-bg: rgba(255, 255, 255, 0.03);
+    --muted-fg: #94a3b8;
     
-    --surface-hover: #374151;
+    --pattern-color: rgba(255, 255, 255, 0.02);
+    --shadow-color: rgba(0, 0, 0, 0.4);
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    transition: background-color 0.2s ease, color 0.2s ease;
+    /* Subtle dot matrix pattern for industrial feel */
+    background-image: radial-gradient(var(--pattern-color) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
@@ -76,16 +82,27 @@
   .bg-muted {
     background-color: var(--color-muted);
   }
-  
-  .hover\:bg-muted:hover {
-    background-color: var(--color-muted);
-  }
 
-  /* ERP Panel style (replacing glass-panel) */
+  /* Next-Gen Panel */
   .erp-panel {
     background-color: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-color);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Standard subtle shadow */
+    box-shadow: 0 8px 32px var(--shadow-color);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .erp-panel:hover {
+    box-shadow: 0 12px 48px var(--shadow-color);
+  }
+
+  /* Gradient Text for special metrics */
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(135deg, #10b981, #0ea5e9);
   }
 }
 
@@ -97,7 +114,7 @@
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
