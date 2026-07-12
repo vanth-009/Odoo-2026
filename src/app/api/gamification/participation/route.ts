@@ -138,6 +138,17 @@ export async function POST(request: NextRequest) {
               await tx.employeeBadge.create({
                 data: { employeeId, badgeId: b.id }
               });
+
+              await tx.notification.create({
+                data: {
+                  employeeId,
+                  title: "New Badge Unlocked",
+                  message: `Congratulations! You unlocked the badge "${b.name}".`,
+                  type: "Badge Unlocked",
+                  referenceType: "Badge",
+                  referenceId: b.id,
+                }
+              });
             }
           }
         }
@@ -156,6 +167,17 @@ export async function POST(request: NextRequest) {
           approvedAt: approvedAtDate,
           approvedBy: approvedBy || 'Admin',
           proof: feedback ? `Review Feedback: ${feedback}` : currentPart.proof
+        }
+      });
+
+      await tx.notification.create({
+        data: {
+          employeeId: currentPart.employeeId,
+          title: `Challenge Submission ${statusString}`,
+          message: `Your submission for the challenge "${currentPart.challenge?.title || 'Challenge'}" has been marked as ${statusString}. ${feedback ? `Feedback: ${feedback}` : ''}`,
+          type: "CSR/Challenge approval decisions",
+          referenceType: "ChallengeParticipation",
+          referenceId: updated.id,
         }
       });
 

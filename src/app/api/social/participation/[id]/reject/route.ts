@@ -80,6 +80,17 @@ export async function PATCH(
       },
     });
 
+    await prisma.notification.create({
+      data: {
+        employeeId: updated.employee.id,
+        title: "CSR Participation Rejected",
+        message: `Your participation in the CSR activity "${updated.activity.title}" has been rejected. Reason: ${updated.rejectionReason}`,
+        type: "CSR/Challenge approval decisions",
+        referenceType: "CsrParticipation",
+        referenceId: updated.id.toString(),
+      }
+    });
+
     return NextResponse.json({
       data: updated,
       message: 'Participation rejected',

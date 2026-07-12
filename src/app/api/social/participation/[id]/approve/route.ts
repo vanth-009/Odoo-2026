@@ -70,6 +70,17 @@ export async function PATCH(
       },
     });
 
+    await prisma.notification.create({
+      data: {
+        employeeId: updated.employee.id,
+        title: "CSR Participation Approved",
+        message: `Your participation in the CSR activity "${updated.activity.title}" has been approved! You earned ${updated.pointsEarned} XP.`,
+        type: "CSR/Challenge approval decisions",
+        referenceType: "CsrParticipation",
+        referenceId: updated.id.toString(),
+      }
+    });
+
     return NextResponse.json({
       data: updated,
       message: 'Participation approved successfully',

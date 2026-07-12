@@ -20,18 +20,100 @@ interface DashboardProps {
   initialData: DashboardData;
 }
 
+import { Bell, Trash2, Mail } from 'lucide-react';
+
 export default function EnvironmentDashboard({ initialData }: DashboardProps) {
   const [data, setData] = useState<DashboardData>(initialData);
   const [loading, setLoading] = useState(false);
   const [isFactorModalOpen, setIsFactorModalOpen] = useState(false);
   const [departmentsList, setDepartmentsList] = useState<{ id: string; name: string }[]>([]);
   
+  // Notifications State
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const triggerToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      if (res.ok) {
+        const body = await res.json();
+        
+        // Filter by preferences in localStorage
+        const localPrefs = localStorage.getItem('esg_notification_settings');
+        const prefs = localPrefs ? JSON.parse(localPrefs) : {
+          complianceInApp: true,
+          approvalInApp: true,
+          policyInApp: true,
+          badgeInApp: true
+        };
+
+        const filtered = (body.data || []).filter((notif: any) => {
+          if (notif.type === 'Compliance Issue Raised' && !prefs.complianceInApp) return false;
+          if (notif.type === 'CSR/Challenge approval decisions' && !prefs.approvalInApp) return false;
+          if (notif.type === 'Policy Acknowledgement Reminders' && !prefs.policyInApp) return false;
+          if (notif.type === 'Badge Unlocked' && !prefs.badgeInApp) return false;
+          return true;
+        });
+
+        setNotifications(filtered);
+      }
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
+
+  const markAsRead = async (notifId: string) => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: notifId })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, isRead: true } : n));
+        triggerToast('Notification marked as read', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+        triggerToast('All notifications marked as read', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteNotification = async (notifId: string) => {
+    try {
+      const res = await fetch(`/api/notifications?id=${notifId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.filter(n => n.id !== notifId));
+        triggerToast('Notification deleted', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const fetchDepartments = async () => {
@@ -63,6 +145,9 @@ export default function EnvironmentDashboard({ initialData }: DashboardProps) {
 
   useEffect(() => {
     fetchDepartments();
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -221,6 +306,68 @@ export default function EnvironmentDashboard({ initialData }: DashboardProps) {
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             </button>
+
+            {/* Notification Center */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  fetchNotifications();
+                }}
+                className="p-2 rounded-lg bg-[#18181b] hover:bg-[#27272a] text-zinc-400 hover:text-[#f4f4f5] border border-[#27272a]/40 transition-premium relative"
+                title="Notifications"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                {notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[#27272a] bg-[#09090b]/95 backdrop-blur-xl shadow-2xl p-4 z-50 space-y-3 text-xs">
+                  <div className="flex items-center justify-between border-b border-[#1f1f23] pb-2">
+                    <span className="font-bold text-[#f4f4f5]">Alerts Ledger</span>
+                    {notifications.some(n => !n.isRead) && (
+                      <button onClick={markAllAsRead} className="text-[10px] font-bold text-emerald-450 hover:underline">
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto space-y-2.5 pr-1 select-none">
+                    {notifications.length === 0 ? (
+                      <p className="text-zinc-550 text-center py-6 italic text-[11px]">No active telemetry logs.</p>
+                    ) : (
+                      notifications.map(n => (
+                        <div key={n.id} className={`p-2.5 rounded-lg border transition-colors flex flex-col gap-1 ${
+                          n.isRead ? 'border-[#1f1f23]/40 bg-[#18181b]/10' : 'border-emerald-500/20 bg-emerald-500/[0.02]'
+                        }`}>
+                          <div className="flex justify-between items-start">
+                            <span className={`font-bold text-[10.5px] ${n.isRead ? 'text-zinc-400' : 'text-emerald-400'}`}>
+                              {n.title}
+                            </span>
+                            <span className="text-[8px] font-mono text-zinc-550">
+                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-zinc-350 text-[11px] leading-relaxed">{n.message}</p>
+                          <div className="flex gap-2 justify-end mt-1 border-t border-white/5 pt-1.5">
+                            {!n.isRead && (
+                              <button onClick={() => markAsRead(n.id)} className="text-[9px] font-bold text-emerald-450 hover:underline">
+                                Acknowledge
+                              </button>
+                            )}
+                            <button onClick={() => deleteNotification(n.id)} className="text-[9px] font-bold text-rose-400 hover:underline flex items-center gap-0.5">
+                              <Trash2 className="w-2.5 h-2.5" /> Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

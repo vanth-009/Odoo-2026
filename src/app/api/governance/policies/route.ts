@@ -115,6 +115,29 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      const employees = await tx.employee.findMany({ select: { id: true } });
+      for (const emp of employees) {
+        await tx.policyAcknowledgement.create({
+          data: {
+            employeeId: emp.id,
+            policyId: p.id,
+            versionNumber: versionString,
+            status: 'Pending',
+          }
+        });
+
+        await tx.notification.create({
+          data: {
+            employeeId: emp.id,
+            title: "New Policy Acknowledgement Needed",
+            message: `Please review and acknowledge the newly published policy: "${title}" (Version ${versionString}).`,
+            type: "Policy Acknowledgement Reminders",
+            referenceType: "Policy",
+            referenceId: p.id,
+          }
+        });
+      }
+
       return tx.policy.findUnique({
         where: { id: p.id },
         include: {

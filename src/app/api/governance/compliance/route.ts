@@ -133,6 +133,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    if (employee) {
+      await prisma.notification.create({
+        data: {
+          employeeId: employee.id,
+          title: "New Compliance Issue Assigned",
+          message: `You have been assigned a new compliance issue: "${issue.title}".`,
+          type: "Compliance Issue Raised",
+          referenceType: "ComplianceIssue",
+          referenceId: issue.id,
+        }
+      });
+    }
+
     const mappedIssue = {
       id: issue.id,
       title: issue.title,
