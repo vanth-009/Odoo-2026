@@ -1,0 +1,209 @@
+// EcoSphere ESG Platform - Social Module Schema
+// Prisma schema for MySQL database
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+}
+
+enum ActivityStatus {
+  DRAFT
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TrainingCompletionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum ProgramStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model Department {
+  id            Int        @id @default(autoincrement())
+  name          String
+  code          String     @unique
+  description   String?
+  headName      String?
+  employeeCount Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  employees     Employee[]
+}
+
+model Employee {
+  id                  Int                     @id @default(autoincrement())
+  employeeCode        String                  @unique
+  firstName           String
+  lastName            String
+  email               String                  @unique
+  phone               String?
+  departmentId        Int
+  department          Department              @relation(fields: [departmentId], references: [id])
+  designation         String
+  gender              Gender
+  dateOfBirth         DateTime
+  ethnicity           String?
+  joinDate            DateTime
+  status              EmployeeStatus
+  avatarUrl           String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  participations      EmployeeParticipation[]
+  surveyResponses     SurveyResponse[]
+  trainingCompletions TrainingCompletion[]
+}
+
+model CsrCategory {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  description String?
+  icon        String?
+  color       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  activities  CsrActivity[]
+}
+
+model CsrActivity {
+  id              Int                     @id @default(autoincrement())
+  title           String
+  description     String                  @db.Text
+  categoryId      Int
+  category        CsrCategory             @relation(fields: [categoryId], references: [id])
+  location        String?
+  startDate       DateTime
+  endDate         DateTime
+  maxParticipants Int?
+  xpReward        Int                     @default(10)
+  status          ActivityStatus
+  imageUrl        String?
+  organizerName   String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  participations  EmployeeParticipation[]
+}
+
+model EmployeeParticipation {
+  id              Int            @id @default(autoincrement())
+  employeeId      Int
+  employee        Employee       @relation(fields: [employeeId], references: [id])
+  activityId      Int
+  activity        CsrActivity    @relation(fields: [activityId], references: [id])
+  registeredAt    DateTime       @default(now())
+  completedAt     DateTime?
+  hoursContributed Float?
+  proofUrl        String?
+  feedback        String?        @db.Text
+  rating          Int?
+  approvalStatus  ApprovalStatus @default(PENDING)
+  approvedBy      String?
+  approvalDate    DateTime?
+  rejectionReason String?
+  pointsEarned    Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([employeeId, activityId])
+}
+
+model EngagementSurvey {
+  id        Int              @id @default(autoincrement())
+  title     String
+  description String?
+  quarter   String
+  year      Int
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  responses SurveyResponse[]
+}
+
+model SurveyResponse {
+  id                  Int              @id @default(autoincrement())
+  surveyId            Int
+  survey              EngagementSurvey @relation(fields: [surveyId], references: [id])
+  employeeId          Int
+  employee            Employee         @relation(fields: [employeeId], references: [id])
+  overallScore        Int
+  workLifeBalance     Int
+  teamCollaboration   Int
+  growthOpportunities Int
+  managementSupport   Int
+  comments            String?          @db.Text
+  submittedAt         DateTime         @default(now())
+
+  @@unique([surveyId, employeeId])
+}
+
+model TrainingProgram {
+  id            Int               @id @default(autoincrement())
+  title         String
+  description   String?           @db.Text
+  category      String
+  durationHours Float
+  isMandatory   Boolean           @default(false)
+  deadline      DateTime?
+  status        ProgramStatus
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  completions   TrainingCompletion[]
+}
+
+model TrainingCompletion {
+  id             Int                      @id @default(autoincrement())
+  trainingId     Int
+  training       TrainingProgram          @relation(fields: [trainingId], references: [id])
+  employeeId     Int
+  employee       Employee                 @relation(fields: [employeeId], references: [id])
+  startedAt      DateTime?
+  completedAt    DateTime?
+  score          Float?
+  status         TrainingCompletionStatus
+  certificateUrl String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  @@unique([trainingId, employeeId])
+}

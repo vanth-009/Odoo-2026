@@ -8,24 +8,41 @@ export default function Social() {
   const [loaded, setLoaded] = useState(false);
   const { toast } = useToast();
   
-  const [approvalQueue, setApprovalQueue] = useState([
-    { id: "REQ-1023", name: "Sarah Miller", dept: "Marketing", date: "2024-05-12", hrs: "4.5", type: "Volunteer" },
-    { id: "REQ-1024", name: "Robert Kane", dept: "Legal", date: "2024-05-14", hrs: "6.0", type: "Pro Bono" },
-    { id: "REQ-1025", name: "Li Dan", dept: "Engineering", date: "2024-05-15", hrs: "2.0", type: "Volunteer" }
-  ]);
+  const [approvalQueue, setApprovalQueue] = useState<any[]>([]);
 
   useEffect(() => {
     setLoaded(true);
+    fetch('/api/social/participation?status=PENDING')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          setApprovalQueue(data.data);
+        }
+      });
   }, []);
 
-  const handleApprove = (id: string, name: string) => {
-    setApprovalQueue(prev => prev.filter(item => item.id !== id));
-    toast(`Node ${id} verified.`, "success");
+  const handleApprove = async (id: number, name: string) => {
+    try {
+      await fetch(`/api/social/participation/${id}/approve`, { method: 'POST' });
+      setApprovalQueue(prev => prev.filter(item => item.id !== id));
+      toast(`Entity ${name} verified.`, "success");
+    } catch (e) {
+      toast(`Error verifying ${name}.`, "error");
+    }
   };
 
-  const handleReject = (id: string, name: string) => {
-    setApprovalQueue(prev => prev.filter(item => item.id !== id));
-    toast(`Node ${id} purged.`, "error");
+  const handleReject = async (id: number, name: string) => {
+    try {
+      await fetch(`/api/social/participation/${id}/reject`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Purged by Matrix' })
+      });
+      setApprovalQueue(prev => prev.filter(item => item.id !== id));
+      toast(`Entity ${name} purged.`, "error");
+    } catch (e) {
+      toast(`Error purging ${name}.`, "error");
+    }
   };
 
   return (
@@ -176,16 +193,16 @@ export default function Social() {
                 </tr>
               ) : approvalQueue.map((row) => (
                 <tr key={row.id} className="hover:bg-muted/50 transition-colors group">
-                  <td className="px-6 py-4 border-r border-border font-mono text-xs font-bold text-foreground group-hover:text-primary transition-colors">{row.id}</td>
-                  <td className="px-6 py-4 border-r border-border text-sm font-bold">{row.name}</td>
-                  <td className="px-6 py-4 border-r border-border font-medium text-muted-foreground">{row.dept}</td>
-                  <td className="px-6 py-4 border-r border-border font-medium">{row.type}</td>
-                  <td className="px-6 py-4 border-r border-border font-mono text-sm font-extrabold text-right">{row.hrs}</td>
-                  <td className="px-6 py-4 border-r border-border font-mono text-xs text-muted-foreground text-right">{row.date}</td>
+                  <td className="px-6 py-4 border-r border-border font-mono text-xs font-bold text-foreground group-hover:text-primary transition-colors">REQ-{row.id}</td>
+                  <td className="px-6 py-4 border-r border-border text-sm font-bold">{row.employee?.firstName} {row.employee?.lastName}</td>
+                  <td className="px-6 py-4 border-r border-border font-medium text-muted-foreground">{row.employee?.department?.name || 'Unknown'}</td>
+                  <td className="px-6 py-4 border-r border-border font-medium">{row.activity?.title || 'General'}</td>
+                  <td className="px-6 py-4 border-r border-border font-mono text-sm font-extrabold text-right">{row.hoursContributed || 0}</td>
+                  <td className="px-6 py-4 border-r border-border font-mono text-xs text-muted-foreground text-right">{new Date(row.registeredAt).toISOString().split('T')[0]}</td>
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center gap-2">
-                      <button onClick={() => handleApprove(row.id, row.name)} className="p-1.5 hover:bg-primary/20 text-muted-foreground hover:text-primary border border-transparent hover:border-primary/30 rounded-lg transition-all"><CheckCircle2 size={18} /></button>
-                      <button onClick={() => handleReject(row.id, row.name)} className="p-1.5 hover:bg-destructive/20 text-muted-foreground hover:text-destructive border border-transparent hover:border-destructive/30 rounded-lg transition-all"><XCircle size={18} /></button>
+                      <button onClick={() => handleApprove(row.id, row.employee?.firstName || 'User')} className="p-1.5 hover:bg-primary/20 text-muted-foreground hover:text-primary border border-transparent hover:border-primary/30 rounded-lg transition-all"><CheckCircle2 size={18} /></button>
+                      <button onClick={() => handleReject(row.id, row.employee?.firstName || 'User')} className="p-1.5 hover:bg-destructive/20 text-muted-foreground hover:text-destructive border border-transparent hover:border-destructive/30 rounded-lg transition-all"><XCircle size={18} /></button>
                     </div>
                   </td>
                 </tr>
