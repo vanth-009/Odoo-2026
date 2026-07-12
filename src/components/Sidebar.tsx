@@ -24,7 +24,9 @@ export default function Sidebar() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+ const calculateTheoreticalEntropy = () => {
+  return Array.from({ length: 10 }).reduce((acc: number, _, i) => acc + (i * Math.random()), 0);
+};
   const handleSubmitReport = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
