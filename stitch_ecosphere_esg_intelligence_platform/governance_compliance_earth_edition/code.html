@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Governance &amp; Compliance | EcoSphere</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#717973",
+                    "secondary-container": "#a0f4c8",
+                    "on-tertiary-container": "#ea9147",
+                    "on-primary-fixed-variant": "#274e3d",
+                    "surface-container-high": "#e8e8e5",
+                    "tertiary-container": "#5f2f00",
+                    "on-tertiary-fixed": "#2f1400",
+                    "primary-container": "#1b4332",
+                    "tertiary-fixed": "#ffdcc4",
+                    "tertiary": "#3f1d00",
+                    "on-surface-variant": "#414844",
+                    "secondary-fixed": "#a0f4c8",
+                    "on-primary-container": "#86af99",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#85d7ad",
+                    "on-primary-fixed": "#002114",
+                    "primary": "#012d1d",
+                    "secondary": "#0e6c4a",
+                    "surface-variant": "#e2e3e0",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-primary": "#a5d0b9",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c1c8c2",
+                    "surface-container": "#eeeeeb",
+                    "inverse-on-surface": "#f0f1ee",
+                    "surface-tint": "#3f6653",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#dadad7",
+                    "background": "#f9faf6",
+                    "surface-container-low": "#f3f4f1",
+                    "primary-fixed": "#c1ecd4",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e2e3e0",
+                    "on-secondary-container": "#19724f",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2f312f",
+                    "primary-fixed-dim": "#a5d0b9",
+                    "on-tertiary-fixed-variant": "#6f3800",
+                    "on-background": "#1a1c1a",
+                    "surface": "#f9faf6",
+                    "on-surface": "#1a1c1a",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-bright": "#f9faf6",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "container-max": "1280px",
+                    "unit": "4px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "label-md": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "headline-lg": ["Public Sans"],
+                    "label-sm": ["Public Sans"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Public Sans', sans-serif; background-color: #f9faf6; }
+        .glass-card {
+            background: #ffffff;
+            box-shadow: 0px 4px 20px rgba(27, 67, 50, 0.04);
+            border: 1px solid #e9e1d6;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c8c2; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-on-background">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col py-stack-md px-stack-md border-r border-outline-variant bg-surface-container-low dark:bg-surface-container z-50">
+<div class="mb-stack-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">EcoSphere</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">ESG Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">eco</span> Environmental
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">groups</span> Social
+            </div>
+<!-- ACTIVE TAB: Governance -->
+<div class="bg-secondary-container text-on-secondary-container rounded-lg font-bold font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all">
+<span class="material-symbols-outlined">gavel</span> Governance
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">military_tech</span> Gamification
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">analytics</span> Reports
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200">
+<span class="material-symbols-outlined">settings</span> Settings
+            </div>
+</nav>
+<button class="mt-stack-lg w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md flex items-center justify-center gap-2 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'opsz' 20;">add</span>
+            New Report
+        </button>
+<div class="mt-auto space-y-1 pt-stack-md border-t border-outline-variant">
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all">
+<span class="material-symbols-outlined">help</span> Help Center
+            </div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-lg font-label-md text-label-md flex items-center gap-3 px-3 py-2 cursor-pointer transition-all">
+<span class="material-symbols-outlined">logout</span> Log Out
+            </div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="flex justify-between items-center px-margin-desktop sticky top-0 z-40 w-full h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant shadow-sm backdrop-blur-sm">
+<div class="flex items-center gap-6">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Governance</h2>
+<div class="hidden md:flex gap-4">
+<span class="text-primary font-bold border-b-2 border-primary cursor-pointer font-body-md text-body-md py-1">Health</span>
+<span class="text-on-surface-variant font-medium hover:bg-surface-container-low transition-colors duration-200 cursor-pointer font-body-md text-body-md px-2 py-1 rounded">Audits</span>
+<span class="text-on-surface-variant font-medium hover:bg-surface-container-low transition-colors duration-200 cursor-pointer font-body-md text-body-md px-2 py-1 rounded">Compliance</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-high px-4 py-1.5 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+<span class="font-label-md text-label-md text-primary">Score: 81/100</span>
+</div>
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-xl font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    Log Carbon Data
+                </button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Professional corporate headshot of a female ESG manager with a friendly but authoritative expression, soft natural office lighting, wearing a forest green blazer against a neutral minimalist background, representing corporate accountability and stability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWSfrARPq4lYca162HTn27e3LWozvUg8Van447lYWxlUbIKU9OEIjmVeAw_Iru_uE4LZslRLXwETVo4HhCb4DzaGswljpuz0ezKdJyUwsqugmctKKyTVaF1jlzekJVe1j-i5j4BZGxBWe3PU2UBT9ZioKI0BtW4e6UkhJPrLfJAHQJGLGy-v8C_Ptbpb-rJ7pi3wwYW6JpeNcnX_3REXLGAqNfJwqbNpuZfE_48mbER9LQmpLE-HglpA"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-margin-desktop max-w-container-max mx-auto space-y-stack-lg">
+<!-- Section: Governance Health (Bento Layout) -->
+<section class="grid grid-cols-12 gap-gutter">
+<div class="col-span-12 lg:col-span-5 glass-card p-stack-lg rounded-xl flex flex-col justify-between overflow-hidden relative">
+<div class="z-10">
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">AGGREGATE HEALTH</p>
+<h3 class="font-headline-lg text-headline-lg text-primary">Governance Health</h3>
+</div>
+<div class="py-stack-lg flex items-center justify-center relative">
+<div class="relative w-48 h-48">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-highest" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-secondary" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="66.35" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-xl text-headline-xl text-primary">88</span>
+<span class="font-label-md text-label-md text-on-surface-variant">/ 100</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 z-10">
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Anti-Corrupt</p>
+<p class="font-headline-md text-headline-md text-primary">92</p>
+</div>
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Privacy</p>
+<p class="font-headline-md text-headline-md text-primary">84</p>
+</div>
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Whistleblow</p>
+<p class="font-headline-md text-headline-md text-primary">88</p>
+</div>
+</div>
+</div>
+<!-- Compliance Tracking Board -->
+<div class="col-span-12 lg:col-span-7 space-y-stack-md">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">ACTION REQUIRED</p>
+<h3 class="font-headline-md text-headline-md text-primary">Compliance Tracking Board</h3>
+</div>
+<button class="text-secondary font-label-md text-label-md flex items-center gap-1 hover:underline">
+                            View All Items <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="grid md:grid-cols-2 gap-stack-md">
+<!-- Critical Issue Card -->
+<div class="glass-card p-stack-md rounded-xl border-l-4 border-error relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">High Severity</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors cursor-pointer">more_vert</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Missing MSDS Safety Sheets</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Required for chemical inventory in Sector B-12. Audit deadline: 48h.</p>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a safety compliance officer, professional attire, looking focused, studio lighting, neutral background, part of a high-trust corporate environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAts636TnZmlr9bqV8L50L1fMkpM0YDY68Qrupsg9QqgvlhodsTDrudvuhUvG4zII45-CoppWy_5NqwdzUX01t6el6UTHVjkUR4aJur3jr4PsBF6awFDYU7BwWO642xnA-eSlbhELC-iqhENssBYmM9cmHLZ6W1a7Py7Gi3j-W_8RmrApWAAYN90cNhkl6LI3ntXbnA2xH_fvDcxKE6QFFbsA8r2i_RyD_VqbO1t_gHVlnxhYg3YWCwRg"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center font-label-sm text-label-sm">+2</div>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Assigned to EHS Team</span>
+</div>
+</div>
+<!-- Medium Issue Card -->
+<div class="glass-card p-stack-md rounded-xl border-l-4 border-on-tertiary-container relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">Medium Severity</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors cursor-pointer">more_vert</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Late Vendor Disclosure</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Logistics partner 'GreenStream' has not updated ethical labor certificate.</p>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a supply chain manager, sophisticated office lighting, professional and trustworthy, natural warm tones, focus on ethical governance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATyOsCNT4dMjAtyGFVk1_fjYSBhKEFKFalISVdXoFyWSBJ_JSpJZOnbyo9DPbxkq6-4jT9YIUsL6yEsDMVWpx0SuifNYWiRCFvik_Ys--PlEL0uPKVwPjuG8NV_7apo7GrX_PjX2V0x_RaIvFy78lxQU0oxYhVtSNNtikWOCM-2Ud0Dpbo_aXmDZ2PyhDO_lqTo9XRaJGPqyNm2M5sH7i1lPauPVQA1Mh18NO-pcf84Sji6qThKkmUGw"/>
+</div>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Assigned to Procurement</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Audit Logs Table -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">TRANSPARENCY LEDGER</p>
+<h3 class="font-headline-md text-headline-md text-primary">Recent Audit Logs</h3>
+</div>
+<div class="flex gap-2">
+<div class="bg-white border border-outline-variant px-3 py-1.5 rounded-lg flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+<span class="font-label-md text-label-md">Filter</span>
+</div>
+<div class="bg-white border border-outline-variant px-3 py-1.5 rounded-lg flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span class="font-label-md text-label-md">Export PDF</span>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-xl overflow-hidden overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-6 py-4 font-label-md text-label-md text-primary">Audit ID</th>
+<th class="px-6 py-4 font-label-md text-label-md text-primary">Metric Scope</th>
+<th class="px-6 py-4 font-label-md text-label-md text-primary">Auditor</th>
+<th class="px-6 py-4 font-label-md text-label-md text-primary">Timestamp</th>
+<th class="px-6 py-4 font-label-md text-label-md text-primary">Status</th>
+<th class="px-6 py-4 font-label-md text-label-md text-primary text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-[rgba(133,215,173,0.05)] transition-colors">
+<td class="px-6 py-4 font-body-md text-body-md text-primary">#AUD-9921</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-primary text-on-primary rounded text-[10px] font-bold uppercase">Environmental</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Carbon Credits</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Deloitte ESG Services</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Oct 24, 2023 14:32</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Verified
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary material-symbols-outlined hover:scale-110 transition-transform">visibility</button>
+</td>
+</tr>
+<tr class="bg-surface-container-low hover:bg-[rgba(133,215,173,0.05)] transition-colors">
+<td class="px-6 py-4 font-body-md text-body-md text-primary">#AUD-9918</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-tertiary text-on-tertiary rounded text-[10px] font-bold uppercase">Governance</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Board Composition</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Internal Audit Bureau</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Oct 22, 2023 09:15</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span> Pending Review
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary material-symbols-outlined hover:scale-110 transition-transform">visibility</button>
+</td>
+</tr>
+<tr class="hover:bg-[rgba(133,215,173,0.05)] transition-colors">
+<td class="px-6 py-4 font-body-md text-body-md text-primary">#AUD-9892</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-secondary text-on-secondary rounded text-[10px] font-bold uppercase">Social</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Diversity Metrics</span>
+</div>
+</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Global Impact Partners</td>
+<td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">Oct 19, 2023 16:45</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Verified
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary material-symbols-outlined hover:scale-110 transition-transform">visibility</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- Visual Atmosphere: Subtle Ambient Texture -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]" style="background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');"></div>
+<script>
+        // Simple Interaction: Card Hover Animation enhancement
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+    </script>
+</body></html>
