@@ -5,6 +5,55 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(_request: NextRequest) {
   try {
+    // Read autoFlagOverdue setting
+    const fs = require('fs');
+    const path = require('path');
+    const settingsPath = path.join(process.cwd(), 'src/lib/settings.json');
+    let autoFlagOverdue = true;
+    try {
+      if (fs.existsSync(settingsPath)) {
+        const data = fs.readFileSync(settingsPath, 'utf-8');
+        const parsed = JSON.parse(data);
+        if (parsed.autoFlagOverdue !== undefined) {
+          autoFlagOverdue = !!parsed.autoFlagOverdue;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read settings in compliance GET route", e);
+    }
+
+    if (autoFlagOverdue) {
+      // Check for overdue compliance issues and flag them
+      const now = new Date();
+      const overdueIssues = await prisma.complianceIssue.findMany({
+        where: {
+          dueDate: { lt: now },
+          status: { in: ['Open', 'In Progress', 'OPEN', 'IN_PROGRESS'] }
+        }
+      });
+
+      for (const issue of overdueIssues) {
+        await prisma.complianceIssue.update({
+          where: { id: issue.id },
+          data: { status: 'Overdue' }
+        });
+
+        if (issue.ownerEmployeeId) {
+          // Feed the Notification system
+          await prisma.notification.create({
+            data: {
+              employeeId: issue.ownerEmployeeId,
+              title: "Compliance Issue Overdue",
+              message: `Compliance issue "${issue.title}" has passed its due date (${issue.dueDate?.toLocaleDateString()}) and remains Open.`,
+              type: "new compliance issue raised",
+              referenceType: "ComplianceIssue",
+              referenceId: issue.id
+            }
+          });
+        }
+      }
+    }
+
     const dbIssues = await prisma.complianceIssue.findMany({
       include: {
         evidences: true,
@@ -80,6 +129,10 @@ export async function POST(request: NextRequest) {
       errors.push('Remediation owner is required.');
     }
 
+    if (!body.remediationDeadline || isNaN(Date.parse(body.remediationDeadline))) {
+      errors.push('A valid remediation deadline (Due Date) is required.');
+    }
+
     if (errors.length > 0) {
       return NextResponse.json(
         { error: 'Validation failed', details: errors },
@@ -91,7 +144,7 @@ export async function POST(request: NextRequest) {
     const description = body.description.trim();
     const severity = body.severity || 'MEDIUM';
     const status = body.status || 'OPEN';
-    const remediationDeadline = body.remediationDeadline ? new Date(body.remediationDeadline) : null;
+    const remediationDeadline = new Date(body.remediationDeadline);
     const remediationOwner = body.remediationOwner.trim();
 
     const defaultDept = await prisma.department.findFirst();

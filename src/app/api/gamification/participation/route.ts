@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { checkAndAwardBadges } from '@/lib/badgeAwards';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,6 +89,8 @@ export async function POST(request: NextRequest) {
       let statusString = 'PENDING';
       let approvedAtDate = null;
 
+      let updatedParticipation;
+
       if (action === 'APPROVE') {
         statusString = 'APPROVED';
         approvedAtDate = new Date();
@@ -102,73 +105,37 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        // 2. Compute current stats for badge check
-        const completedCount = await tx.challengeParticipation.count({
-          where: { employeeId, approvalStatus: 'APPROVED' }
-        });
-
-        // Include this current challenge since it is being approved in this transaction
-        const totalCompleted = completedCount + 1;
-
-        const xpAgg = await tx.xPTransaction.aggregate({
-          where: { employeeId },
-          _sum: { xp: true }
-        });
-        const totalXp = (xpAgg._sum.xp || 0) + currentPart.challenge.xp;
-
-        // 3. Automated Badge unlock checks
-        const badges = await tx.badge.findMany({ where: { status: 'ACTIVE' } });
-        for (const b of badges) {
-          const alreadyEarned = await tx.employeeBadge.findUnique({
-            where: {
-              employeeId_badgeId: { employeeId, badgeId: b.id }
-            }
-          });
-
-          if (!alreadyEarned) {
-            let shouldUnlock = false;
-            if (b.challengesCountThreshold > 0 && totalCompleted >= b.challengesCountThreshold) {
-              shouldUnlock = true;
-            }
-            if (b.xpThreshold > 0 && totalXp >= b.xpThreshold) {
-              shouldUnlock = true;
-            }
-
-            if (shouldUnlock) {
-              await tx.employeeBadge.create({
-                data: { employeeId, badgeId: b.id }
-              });
-
-              await tx.notification.create({
-                data: {
-                  employeeId,
-                  title: "New Badge Unlocked",
-                  message: `Congratulations! You unlocked the badge "${b.name}".`,
-                  type: "Badge Unlocked",
-                  referenceType: "Badge",
-                  referenceId: b.id,
-                }
-              });
-            }
+        // Update participation status to APPROVED inside transaction so helper counts it
+        updatedParticipation = await tx.challengeParticipation.update({
+          where: { id: participationId },
+          data: {
+            approvalStatus: statusString,
+            approvedAt: approvedAtDate,
+            approvedBy: approvedBy || 'Admin',
+            proof: feedback ? `Review Feedback: ${feedback}` : currentPart.proof
           }
+        });
+
+        // 2. Run auto badge awards check
+        await checkAndAwardBadges(employeeId, tx);
+
+      } else {
+        if (action === 'REJECT') {
+          statusString = 'REJECTED';
+        } else if (action === 'RESUBMIT') {
+          statusString = 'RESUBMIT_REQUESTED';
         }
 
-      } else if (action === 'REJECT') {
-        statusString = 'REJECTED';
-      } else if (action === 'RESUBMIT') {
-        statusString = 'RESUBMIT_REQUESTED';
+        updatedParticipation = await tx.challengeParticipation.update({
+          where: { id: participationId },
+          data: {
+            approvalStatus: statusString,
+            approvedAt: approvedAtDate,
+            approvedBy: approvedBy || 'Admin',
+            proof: feedback ? `Review Feedback: ${feedback}` : currentPart.proof
+          }
+        });
       }
-
-      // Update participation record
-      const updated = await tx.challengeParticipation.update({
-        where: { id: participationId },
-        data: {
-          approvalStatus: statusString,
-          approvedAt: approvedAtDate,
-          approvedBy: approvedBy || 'Admin',
-          proof: feedback ? `Review Feedback: ${feedback}` : currentPart.proof
-        }
-      });
 
       await tx.notification.create({
         data: {
@@ -177,11 +144,11 @@ export async function POST(request: NextRequest) {
           message: `Your submission for the challenge "${currentPart.challenge?.title || 'Challenge'}" has been marked as ${statusString}. ${feedback ? `Feedback: ${feedback}` : ''}`,
           type: "CSR/Challenge approval decisions",
           referenceType: "ChallengeParticipation",
-          referenceId: updated.id,
+          referenceId: updatedParticipation.id,
         }
       });
 
-      return updated;
+      return updatedParticipation;
     });
 
     return NextResponse.json({

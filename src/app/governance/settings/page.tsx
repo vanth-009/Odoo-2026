@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ClipboardCheck, Save, Shield, HelpCircle, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -14,9 +14,34 @@ export default function GovernanceSettingsPage() {
   const [defaultAuditFrequency, setDefaultAuditFrequency] = useState("quarterly");
   const [escalationDays, setEscalationDays] = useState("5");
 
-  const handleSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(body => {
+        if (body.success && body.data && body.data.autoFlagOverdue !== undefined) {
+          setAutoFlagOverdue(body.data.autoFlagOverdue);
+        }
+      })
+      .catch(e => console.error("Error loading settings in governance panel", e));
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Governance settings saved successfully!");
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoFlagOverdue })
+      });
+      if (res.ok) {
+        toast.success("Governance settings saved successfully!");
+      } else {
+        toast.error("Failed to save settings.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save settings.");
+    }
   };
 
   return (

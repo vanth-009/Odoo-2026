@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { checkAndAwardBadges } from '@/lib/badgeAwards';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,40 +120,8 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Recalculate employee total XP for badge award check
-      const completedCount = await tx.challengeParticipation.count({
-        where: { employeeId, approvalStatus: 'APPROVED' }
-      });
-
-      const xpAgg = await tx.xPTransaction.aggregate({
-        where: { employeeId },
-        _sum: { xp: true }
-      });
-      const totalXp = xpAgg._sum.xp || 0;
-
-      // Automated Badge check
-      const badges = await tx.badge.findMany({ where: { status: 'ACTIVE' } });
-      for (const b of badges) {
-        const alreadyEarned = await tx.employeeBadge.findUnique({
-          where: { employeeId_badgeId: { employeeId, badgeId: b.id } }
-        });
-
-        if (!alreadyEarned) {
-          let shouldUnlock = false;
-          if (b.challengesCountThreshold > 0 && completedCount >= b.challengesCountThreshold) {
-            shouldUnlock = true;
-          }
-          if (b.xpThreshold > 0 && totalXp >= b.xpThreshold) {
-            shouldUnlock = true;
-          }
-
-          if (shouldUnlock) {
-            await tx.employeeBadge.create({
-              data: { employeeId, badgeId: b.id }
-            });
-          }
-        }
-      }
+      // Recalculate employee total XP and run automated badge award checks
+      await checkAndAwardBadges(employeeId, tx);
 
       return t;
     });

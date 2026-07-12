@@ -42,6 +42,10 @@ export default function Settings() {
     enforceStrongPasswords: true
   });
 
+  // 5. Evidence Requirement & Auto Award operational rules state
+  const [requireProof, setRequireProof] = useState(false);
+  const [badgeAutoAward, setBadgeAutoAward] = useState(false);
+
   // Load preferences and employees on mount
   useEffect(() => {
     setLoaded(true);
@@ -68,6 +72,17 @@ export default function Settings() {
       } catch (e) {}
     }
 
+    // Fetch operational settings from backend API
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(body => {
+        if (body.success && body.data) {
+          setRequireProof(body.data.requireProof || false);
+          setBadgeAutoAward(body.data.badgeAutoAward || false);
+        }
+      })
+      .catch(e => console.error("Error loading backend settings", e));
+
     fetchEmployees();
   }, []);
 
@@ -86,9 +101,23 @@ export default function Settings() {
     }
   };
 
-  const handleSaveThresholds = (e: React.FormEvent) => {
+  const handleSaveThresholds = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast("System parameters committed to global config.", "success");
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requireProof, badgeAutoAward })
+      });
+      if (res.ok) {
+        toast("Global thresholds and operational settings committed.", "success");
+      } else {
+        toast("Failed to update operational settings.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      toast("Failed to update operational settings.", "error");
+    }
   };
 
   const handleSaveNotifications = (e?: React.FormEvent) => {
@@ -168,7 +197,15 @@ export default function Settings() {
                 });
                 toast("Security defaults loaded.", "info");
               } else {
-                toast("Reverting to last safe state...", "info");
+                fetch('/api/settings')
+                  .then(res => res.json())
+                  .then(body => {
+                    if (body.success && body.data) {
+                      setRequireProof(body.data.requireProof || false);
+                      setBadgeAutoAward(body.data.badgeAutoAward || false);
+                      toast("Threshold operational settings reverted.", "info");
+                    }
+                  });
               }
             }} 
             className="bg-background border border-border px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-muted transition-colors"
@@ -307,6 +344,38 @@ export default function Settings() {
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" className="sr-only peer" defaultChecked />
+                      <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white/[0.01] rounded-xl border border-white/5 hover:border-white/10 transition-all">
+                    <div>
+                      <h5 className="font-bold text-sm">Evidence Verification (CSR Proof)</h5>
+                      <p className="text-xs text-muted-foreground mt-1">Block approval of CSR Activity participations if no proof file link is uploaded.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={requireProof}
+                        onChange={(e) => setRequireProof(e.target.checked)}
+                      />
+                      <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-white/[0.01] rounded-xl border border-white/5 hover:border-white/10 transition-all">
+                    <div>
+                      <h5 className="font-bold text-sm">Auto-Award Badge Milestones</h5>
+                      <p className="text-xs text-muted-foreground mt-1">Automatically assign badges to employees the moment threshold parameters or target XP goals are met.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={badgeAutoAward}
+                        onChange={(e) => setBadgeAutoAward(e.target.checked)}
+                      />
                       <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     </label>
                   </div>

@@ -43,42 +43,88 @@ export async function PATCH(
       );
     }
 
-    const updated = await prisma.employeeParticipation.update({
-      where: { id: participationId },
-      data: {
-        approvalStatus: 'APPROVED',
-        approvalDate: new Date(),
-        approvedBy: 'Admin',
-        pointsEarned: participation.activity.xpReward ?? 0,
-      },
-      include: {
-        employee: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            department: true,
-          },
-        },
-        activity: {
-          select: {
-            id: true,
-            title: true,
-            xpReward: true,
-          },
-        },
-      },
-    });
-
-    await prisma.notification.create({
-      data: {
-        employeeId: updated.employee.id,
-        title: "CSR Participation Approved",
-        message: `Your participation in the CSR activity "${updated.activity.title}" has been approved! You earned ${updated.pointsEarned} XP.`,
-        type: "CSR/Challenge approval decisions",
-        referenceType: "CsrParticipation",
-        referenceId: updated.id.toString(),
+    // Read requireProof setting
+    const fs = require('fs');
+    const path = require('path');
+    const settingsPath = path.join(process.cwd(), 'src/lib/settings.json');
+    let requireProof = false;
+    try {
+      if (fs.existsSync(settingsPath)) {
+        const data = fs.readFileSync(settingsPath, 'utf-8');
+        const parsed = JSON.parse(data);
+        requireProof = !!parsed.requireProof;
       }
+    } catch (e) {
+      console.error("Failed to read settings in approve route", e);
+    }
+
+    if (requireProof && (!participation.proofUrl || participation.proofUrl.trim() === '')) {
+      return NextResponse.json(
+        {
+          error: 'An attached proof file is required to approve this CSR Activity participation.',
+        },
+        { status: 400 }
+      );
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      // 1. Update the participation record to APPROVED
+      const up = await tx.employeeParticipation.update({
+        where: { id: participationId },
+        data: {
+          approvalStatus: 'APPROVED',
+          approvalDate: new Date(),
+          approvedBy: 'Admin',
+          pointsEarned: participation.activity.xpReward ?? 0,
+        },
+        include: {
+          employee: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              department: true,
+            },
+          },
+          activity: {
+            select: {
+              id: true,
+              title: true,
+              xpReward: true,
+            },
+          },
+        },
+      });
+
+      // 2. Create XPTransaction entry if xpReward > 0
+      const xpReward = participation.activity.xpReward ?? 0;
+      if (xpReward > 0) {
+        await tx.xPTransaction.create({
+          data: {
+            employeeId: up.employee.id,
+            xp: xpReward,
+            activityName: `Completed CSR Activity: ${up.activity.title}`
+          }
+        });
+      }
+
+      // 3. Run auto badge check helper
+      const { checkAndAwardBadges } = require('@/lib/badgeAwards');
+      await checkAndAwardBadges(up.employee.id, tx);
+
+      // 4. Create notification
+      await tx.notification.create({
+        data: {
+          employeeId: up.employee.id,
+          title: "CSR Participation Approved",
+          message: `Your participation in the CSR activity "${up.activity.title}" has been approved! You earned ${up.pointsEarned} XP.`,
+          type: "CSR/Challenge approval decisions",
+          referenceType: "CsrParticipation",
+          referenceId: up.id.toString(),
+        }
+      });
+
+      return up;
     });
 
     return NextResponse.json({
