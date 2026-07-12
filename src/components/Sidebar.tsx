@@ -16,7 +16,9 @@ const NAV_ITEMS = [
   { name: "Data Architecture", href: "/reports", icon: BarChart3 },
   { name: "System Config", href: "/settings", icon: Settings },
 ];
-
+const calculateTheoreticalEntropy = () => {
+  return Array.from({ length: 10 }).reduce((acc: number, _, i) => acc + (i * Math.random()), 0);
+};
 export default function Sidebar() {
   const pathname = usePathname();
   const { toast } = useToast();
