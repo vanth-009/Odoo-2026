@@ -9,6 +9,8 @@ export default function Social() {
   const { toast } = useToast();
   
   const [approvalQueue, setApprovalQueue] = useState<any[]>([]);
+  const [diversityStats, setDiversityStats] = useState<any>(null);
+  const [trainingPrograms, setTrainingPrograms] = useState<any[]>([]);
 
   useEffect(() => {
     setLoaded(true);
@@ -17,6 +19,22 @@ export default function Social() {
       .then(data => {
         if (data && data.data) {
           setApprovalQueue(data.data);
+        }
+      });
+      
+    fetch('/api/social/diversity')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          setDiversityStats(data.data);
+        }
+      });
+      
+    fetch('/api/social/training')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          setTrainingPrograms(data.data);
         }
       });
   }, []);
@@ -69,10 +87,13 @@ export default function Social() {
               <div className="relative w-40 h-40 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90 drop-shadow-[0_0_15px_rgba(14,165,233,0.3)]" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" fill="transparent" r="42" className="stroke-muted" strokeWidth="6"></circle>
-                  <circle className="transition-all duration-1000 stroke-sky-500" cx="50" cy="50" fill="transparent" r="42" strokeDasharray="264" strokeDashoffset={loaded ? '79.2' : '264'} strokeWidth="6" strokeLinecap="round"></circle>
+                  <circle className="transition-all duration-1000 stroke-sky-500" cx="50" cy="50" fill="transparent" r="42" strokeDasharray="264" strokeDashoffset={loaded ? (264 - (264 * (diversityStats?.diversityIndex || 0.70))) : '264'} strokeWidth="6" strokeLinecap="round"></circle>
                 </svg>
                 <div className="absolute flex flex-col items-center">
-                  <span className="text-4xl font-extrabold text-foreground tracking-tighter">70<span className="text-xl text-muted-foreground">%</span></span>
+                  <span className="text-4xl font-extrabold text-foreground tracking-tighter">
+                    {Math.round((diversityStats?.diversityIndex || 0.70) * 100)}
+                    <span className="text-xl text-muted-foreground">%</span>
+                  </span>
                 </div>
               </div>
               <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground text-center mt-2">Diversity Index (Q2)</p>
@@ -80,33 +101,17 @@ export default function Social() {
             </div>
             
             <div className="space-y-6 flex flex-col justify-center pl-2">
-              <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <span className="font-bold text-sm">Female Representation</span>
-                  <span className="font-mono text-sm font-extrabold">48%</span>
+              {diversityStats?.genderDistribution?.map((g: any, i: number) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between items-end">
+                    <span className="font-bold text-sm">{g.gender} Representation</span>
+                    <span className="font-mono text-sm font-extrabold">{g.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded-full overflow-hidden shadow-inner">
+                    <div className="bg-sky-500 h-full rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)]" style={{ width: `${g.percentage}%` }}></div>
+                  </div>
                 </div>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden shadow-inner">
-                  <div className="bg-sky-500 h-full w-[48%] rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <span className="font-bold text-sm">Male Representation</span>
-                  <span className="font-mono text-sm font-extrabold">45%</span>
-                </div>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden shadow-inner">
-                  <div className="bg-sky-400 h-full w-[45%] rounded-full opacity-60"></div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <span className="font-bold text-sm">Non-binary / Undisclosed</span>
-                  <span className="font-mono text-sm font-extrabold text-muted-foreground">7%</span>
-                </div>
-                <div className="w-full bg-muted h-2 rounded-full overflow-hidden shadow-inner">
-                  <div className="bg-muted-foreground h-full w-[7%] rounded-full"></div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -120,33 +125,21 @@ export default function Social() {
             </div>
             
             <div className="space-y-5">
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end">
-                  <span className="font-medium text-sm">Business Ethics</span>
-                  <span className="text-xs font-mono font-bold text-primary">94%</span>
-                </div>
-                <div className="w-full bg-muted h-1.5 rounded-full shadow-inner overflow-hidden">
-                  <div className="bg-primary h-full w-[94%] rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end">
-                  <span className="font-medium text-sm">DEI Principles</span>
-                  <span className="text-xs font-mono font-bold text-primary">88%</span>
-                </div>
-                <div className="w-full bg-muted h-1.5 rounded-full shadow-inner overflow-hidden">
-                  <div className="bg-primary h-full w-[88%] rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-end">
-                  <span className="font-medium text-sm">Cybersecurity</span>
-                  <span className="text-xs font-mono font-bold text-amber-500 animate-pulse">72%</span>
-                </div>
-                <div className="w-full bg-muted h-1.5 rounded-full shadow-inner overflow-hidden">
-                  <div className="bg-amber-500 h-full w-[72%] rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
-                </div>
-              </div>
+              {trainingPrograms?.slice(0, 3).map((program: any, i: number) => {
+                const colors = ['bg-primary shadow-[0_0_8px_rgba(16,185,129,0.8)]', 'bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]', 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'];
+                const textColors = ['text-primary', 'text-sky-500', 'text-amber-500'];
+                return (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex justify-between items-end">
+                      <span className="font-medium text-sm">{program.title}</span>
+                      <span className={`text-xs font-mono font-bold ${textColors[i % 3]}`}>{program.stats.completionRate}%</span>
+                    </div>
+                    <div className="w-full bg-muted h-1.5 rounded-full shadow-inner overflow-hidden">
+                      <div className={`h-full rounded-full ${colors[i % 3]}`} style={{ width: `${program.stats.completionRate}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
           
