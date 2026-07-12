@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ecosphere: Social & Environmental Module
 
-## Getting Started
+Ecosphere is a comprehensive dashboard module designed to track, manage, and analyze a company's Corporate Social Responsibility (CSR) initiatives, workforce diversity, employee engagement, and compliance training. Built with modern web technologies, it features a premium glassmorphic UI and robust data integration.
 
-First, run the development server:
+## 🌟 Key Features
 
+### 1. Social Ledger Matrix (Overview Dashboard)
+A unified command center providing a high-level view of all social and environmental metrics:
+- **Active CSR Initiatives**: A visual showcase of ongoing community and environmental projects.
+- **Diversity Index**: Live, dynamically calculated Shannon Diversity Index based on real-time workforce data (Gender, Ethnicity, Age distributions).
+- **Engagement Sentiment**: Live employee survey scores measuring Work-Life Balance, Team Collaboration, and Management Support.
+- **Compliance Training Track**: Real-time tracking of mandatory corporate training completions.
+- **Admin Verification Queue**: A centralized hub for admins to verify and approve employee participation in CSR events.
+
+### 2. CSR Activities Management
+A dedicated module to browse and join corporate social responsibility programs:
+- View all `UPCOMING`, `ONGOING`, and `COMPLETED` activities.
+- High-quality visual cards detailing location, dates, XP rewards, and participant capacity.
+- **Join Workflow**: Employees can sign up for activities and log expected contribution hours and proof. Requests are queued for admin approval.
+
+## 🛠 Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) with custom glassmorphism utilities
+- **Database ORM**: [Prisma](https://www.prisma.io/)
+- **Database**: SQLite (Local Development)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Fonts**: Plus Jakarta Sans & JetBrains Mono
+
+## 🚀 Getting Started
+
+### Prerequisites
+Make sure you have Node.js (v18+) and npm/yarn/pnpm installed.
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Setup the Database
+This project uses Prisma with a local SQLite database. 
+First, generate the Prisma client and push the schema to the database:
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Next, populate the database with seed data (Employees, CSR Activities, Surveys, etc.):
+```bash
+node prisma/seed_social.js
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Run the Development Server
+Start the Next.js development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The Social Module is accessible at `http://localhost:3000/social`.
 
-To learn more about Next.js, take a look at the following resources:
+## 🎨 UI Architecture
+The UI relies heavily on a custom design system implemented in `src/app/globals.css`. It features:
+- **Glassmorphism**: `.glass-panel`, `.glass-panel-glow`
+- **Ambient Lighting**: `.ambient-glow-1`, `.ambient-glow-2`
+- **Micro-interactions**: `.transition-premium`, `.btn-premium`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All data rendered on the dashboards (including the Diversity Index and Training Progress) is **100% dynamic** and fetched live from the Prisma database—no hardcoded charts.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Built as a feature integration for the Environmental/Social Module branch.*

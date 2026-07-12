@@ -7,56 +7,501 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+}
+
+enum ActivityStatus {
+  DRAFT
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TrainingCompletionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum ProgramStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// ─── Unified Core Models ──────────────────────────────────────────────────────
+
 model Department {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  code            String?  @unique
+  description     String?
+  targetEmissions Float
+  score           Int      @default(100)
+  status          String   @default("On Track")
+  trend           String   @default("down")
+  manager         String   @default("Unassigned")
+  employeeCount   Int      @default(10)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Parent/Child Department relations (Governance hierarchy)
+  parentDepartmentId String?
+  parentDepartment   Department?  @relation("DeptHierarchy", fields: [parentDepartmentId], references: [id], onDelete: SetNull)
+  childDepartments   Department[] @relation("DeptHierarchy")
+
+  // Department Head relation
+  headEmployeeId String?   @unique
+  headEmployee   Employee? @relation("DeptHead", fields: [headEmployeeId], references: [id], onDelete: SetNull)
+
+  // Relations
+  transactions     CarbonTransaction[]
+  goals            SustainabilityGoal[]
+  employees        Employee[]           @relation("DeptEmployees")
+  audits           Audit[]
+  complianceIssues ComplianceIssue[]
+  policies         Policy[]
+}
+
+model Employee {
+  id           String         @id @default(uuid())
+  employeeCode String         @unique
+  firstName    String
+  lastName     String
+  email        String         @unique
+  phone        String?
+  designation  String
+  gender       Gender
+  dateOfBirth  DateTime?
+  ethnicity    String?
+  joinDate     DateTime?
+  status       EmployeeStatus @default(ACTIVE)
+  avatarUrl    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Department references
+  departmentId      String?
+  department        Department? @relation("DeptEmployees", fields: [departmentId], references: [id], onDelete: SetNull)
+  managedDepartment Department? @relation("DeptHead")
+
+  // Manager Self-Relation
+  managerId    String?
+  manager      Employee?  @relation("ManagerSubordinates", fields: [managerId], references: [id], onDelete: SetNull)
+  subordinates Employee[] @relation("ManagerSubordinates")
+
+  // Module Relations
+  participations         EmployeeParticipation[]
+  surveyResponses        SurveyResponse[]
+  trainingCompletions    TrainingCompletion[]
+  policyAcknowledgements PolicyAcknowledgement[]
+  ownedPolicies          Policy[]
+  auditedAudits          Audit[]
+  complianceIssues       ComplianceIssue[]
+  notifications          Notification[]
+}
+
+// ─── Environmental Module Models (Intact) ───────────────────────────────────
+
+model EmissionFactor {
   id              String              @id @default(uuid())
   name            String              @unique
-  targetEmissions Float
-  score           Int                 @default(100)
-  status          String              @default("On Track")
-  trend           String              @default("down")
+  category        String
+  subcategory     String?
+  unit            String
+  value           Float
+  source          String
+  version         String              @default("1.0.0")
+  effectiveDate   DateTime            @default(now())
+  description     String?             @db.Text
+  status          String              @default("ACTIVE")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   transactions    CarbonTransaction[]
-  goals           SustainabilityGoal[]
+  productProfiles ProductESGProfile[]
 }
 
-model EmissionFactor {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  name      String
-  value     Float
-  unit      String
-  type      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ProductESGProfile {
+  id                        String              @id @default(uuid())
+  name                      String
+  code                      String              @unique
+  category                  String
+  supplier                  String
+  packagingType             String
+  recyclablePercent         Float
+  manufacturingCountry      String
+  lifecycleStage            String
+  hazardClass               String?
+  carbonCategory            String?
+  preferredEmissionFactorId String?
+  preferredEmissionFactor   EmissionFactor?     @relation(fields: [preferredEmissionFactorId], references: [id], onDelete: SetNull)
+  esgRating                 String
+  description               String?             @db.Text
+  status                    String              @default("ACTIVE")
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+  transactions              CarbonTransaction[]
 }
 
 model CarbonTransaction {
-  id           String     @id @default(uuid())
-  txId         String     @unique
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  operation    String
-  product      String
-  carbon       Float
-  timestamp    DateTime   @default(now())
-  status       String     @default("Approved")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id               String             @id @default(uuid())
+  txId             String             @unique
+  timestamp        DateTime           @default(now())
+  departmentId     String
+  department       Department         @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  source           String
+  productId        String?
+  productProfile   ProductESGProfile? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product          String
+  operation        String
+  emissionFactorId String?
+  emissionFactor   EmissionFactor?    @relation(fields: [emissionFactorId], references: [id], onDelete: SetNull)
+  quantity         Float              @default(1.0)
+  unit             String
+  factorValue      Float
+  carbon           Float
+  formula          String
+  createdBy        String             @default("System")
+  status           String             @default("Verified")
+  notes            String?            @db.Text
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 }
 
 model SustainabilityGoal {
-  id           String     @id @default(uuid())
-  name         String
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  owner        String
-  progress     Float      @default(0)
-  target       Float
-  remaining    Float
-  deadline     DateTime
-  status       String     @default("On Track")
-  risk         String     @default("Low")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String     @id @default(uuid())
+  name           String
+  description    String?    @db.Text
+  departmentId   String
+  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  category       String
+  baselineCarbon Float
+  targetCarbon   Float
+  startDate      DateTime   @default(now())
+  targetDate     DateTime
+  owner          String
+  priority       String     @default("Medium")
+  status         String     @default("Active")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model EnvironmentalReport {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  generatedBy String   @default("System")
+  generatedAt DateTime @default(now())
+  filters     String   @db.Text
+  format      String
+  status      String   @default("Ready")
+}
+
+// ─── Social Module Models (Migrated) ─────────────────────────────────────────
+
+model CsrCategory {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  description String?
+  icon        String?
+  color       String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  activities  CsrActivity[]
+}
+
+model CsrActivity {
+  id              Int                     @id @default(autoincrement())
+  title           String
+  description     String                  @db.Text
+  categoryId      Int
+  category        CsrCategory             @relation(fields: [categoryId], references: [id])
+  location        String?
+  startDate       DateTime
+  endDate         DateTime
+  maxParticipants Int?
+  xpReward        Int                     @default(10)
+  status          ActivityStatus
+  imageUrl        String?
+  organizerName   String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  participations  EmployeeParticipation[]
+}
+
+model EmployeeParticipation {
+  id               Int            @id @default(autoincrement())
+  employeeId       String
+  employee         Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  activityId       Int
+  activity         CsrActivity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  registeredAt     DateTime       @default(now())
+  completedAt      DateTime?
+  hoursContributed Float?
+  proofUrl         String?
+  feedback         String?        @db.Text
+  rating           Int?
+  approvalStatus   ApprovalStatus @default(PENDING)
+  approvedBy       String?
+  approvalDate     DateTime?
+  rejectionReason  String?
+  pointsEarned     Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([employeeId, activityId])
+}
+
+model EngagementSurvey {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String?
+  quarter     String
+  year        Int
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  responses   SurveyResponse[]
+}
+
+model SurveyResponse {
+  id                  Int              @id @default(autoincrement())
+  surveyId            Int
+  survey              EngagementSurvey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  employeeId          String
+  employee            Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  overallScore        Int
+  workLifeBalance     Int
+  teamCollaboration   Int
+  growthOpportunities Int
+  managementSupport   Int
+  comments            String?          @db.Text
+  submittedAt         DateTime         @default(now())
+
+  @@unique([surveyId, employeeId])
+}
+
+model TrainingProgram {
+  id            Int                  @id @default(autoincrement())
+  title         String
+  description   String?              @db.Text
+  category      String
+  durationHours Float
+  isMandatory   Boolean              @default(false)
+  deadline      DateTime?
+  status        ProgramStatus
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  completions   TrainingCompletion[]
+}
+
+model TrainingCompletion {
+  id             Int                      @id @default(autoincrement())
+  trainingId     Int
+  training       TrainingProgram          @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       Employee                 @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  score          Float?
+  status         TrainingCompletionStatus
+  certificateUrl String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  @@unique([trainingId, employeeId])
+}
+
+// ─── Governance Module Models (Sequelize Migrated) ───────────────────────────
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  role      String // company_admin, company_secretary
+  otp       String?
+  otpExpire DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Company {
+  id          String     @id @default(uuid())
+  tier        String // Tier 1, Tier 2, Tier 3
+  companyData Json
+  status      String     @default("registered") // registered, active, inactive
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  documents   Document[]
+}
+
+model Document {
+  id                    String    @id @default(uuid())
+  companyId             String
+  company               Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  categoryId            String
+  title                 String
+  reportId              String?
+  formName              String?
+  docType               String // compliance, report
+  originalName          String?
+  fileName              String?
+  filePath              String?
+  mimeType              String?
+  size                  Int?
+  registeredAt          DateTime  @default(now())
+  uploadedAt            DateTime  @default(now())
+  expiryDate            DateTime
+  reminderSent          Boolean   @default(false)
+  reminderAttempts      Int       @default(0)
+  lastReminderAttemptAt DateTime?
+  lastReminderError     String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Policy {
+  id                String                  @id @default(uuid())
+  policyName        String
+  category          String
+  description       String?                 @db.Text
+  version           String
+  effectiveDate     DateTime
+  expiryDate        DateTime?
+  ownerDepartmentId String?
+  ownerDepartment   Department?             @relation(fields: [ownerDepartmentId], references: [id], onDelete: SetNull)
+  ownerEmployeeId   String?
+  ownerEmployee     Employee?               @relation(fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  documentUrl       String?
+  status            String                  @default("Active") // Active, Draft, Archived
+  createdBy         String                  @default("System")
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  versions          PolicyVersion[]
+  acknowledgements  PolicyAcknowledgement[]
+}
+
+model PolicyVersion {
+  id            String   @id @default(uuid())
+  policyId      String
+  policy        Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  versionNumber String
+  documentUrl   String?
+  changeSummary String?  @db.Text
+  effectiveDate DateTime
+  uploadedBy    String?
+  createdAt     DateTime @default(now())
+}
+
+model PolicyAcknowledgement {
+  id            String    @id @default(uuid())
+  policyId      String
+  policy        Policy    @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  employeeId    String
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  versionNumber String
+  status        String    @default("Pending") // Pending, Accepted
+  acceptedAt    DateTime?
+  ipAddress     String?
+  remarks       String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Audit {
+  id                String            @id @default(uuid())
+  name              String
+  departmentId      String
+  department        Department        @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  auditType         String // ESG, Compliance, Financial, etc.
+  auditorEmployeeId String?
+  auditorEmployee   Employee?         @relation(fields: [auditorEmployeeId], references: [id], onDelete: SetNull)
+  startDate         DateTime
+  endDate           DateTime?
+  status            String            @default("Ongoing") // Completed, Ongoing, Scheduled
+  score             Float?
+  remarks           String?           @db.Text
+  createdBy         String            @default("System")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  findings          AuditFinding[]
+  complianceIssues  ComplianceIssue[]
+}
+
+model AuditFinding {
+  id          String   @id @default(uuid())
+  auditId     String
+  audit       Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  title       String
+  description String?  @db.Text
+  severity    String   @default("Medium") // Low, Medium, High, Critical
+  status      String   @default("Open") // Open, Resolved
+  evidenceUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ComplianceIssue {
+  id              String     @id @default(uuid())
+  auditId         String?
+  audit           Audit?     @relation(fields: [auditId], references: [id], onDelete: SetNull)
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  ownerEmployeeId String?
+  ownerEmployee   Employee?  @relation(fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  title           String
+  description     String?    @db.Text
+  severity        String     @default("Medium") // Low, Medium, High, Critical
+  dueDate         DateTime?
+  status          String     @default("Open") // Open, In Progress, Resolved, Closed
+  resolution      String?    @db.Text
+  closedDate      DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  evidences       Evidence[]
+}
+
+model Evidence {
+  id              String          @id @default(uuid())
+  issueId         String
+  complianceIssue ComplianceIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  uploadedBy      String
+  fileUrl         String
+  fileType        String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Notification {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title         String
+  message       String
+  type          String // Policy Reminder, Audit Assigned, Issue Assigned, etc.
+  referenceType String?
+  referenceId   String?
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoSphere | Executive ESG Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#717973",
+                    "secondary-container": "#a0f4c8",
+                    "on-tertiary-container": "#ea9147",
+                    "on-primary-fixed-variant": "#274e3d",
+                    "surface-container-high": "#e8e8e5",
+                    "tertiary-container": "#5f2f00",
+                    "on-tertiary-fixed": "#2f1400",
+                    "primary-container": "#1b4332",
+                    "tertiary-fixed": "#ffdcc4",
+                    "tertiary": "#3f1d00",
+                    "on-surface-variant": "#414844",
+                    "secondary-fixed": "#a0f4c8",
+                    "on-primary-container": "#86af99",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#85d7ad",
+                    "on-primary-fixed": "#002114",
+                    "primary": "#012d1d",
+                    "secondary": "#0e6c4a",
+                    "surface-variant": "#e2e3e0",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-primary": "#a5d0b9",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c1c8c2",
+                    "surface-container": "#eeeeeb",
+                    "inverse-on-surface": "#f0f1ee",
+                    "surface-tint": "#3f6653",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#dadad7",
+                    "background": "#f9faf6",
+                    "surface-container-low": "#f3f4f1",
+                    "primary-fixed": "#c1ecd4",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e2e3e0",
+                    "on-secondary-container": "#19724f",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2f312f",
+                    "primary-fixed-dim": "#a5d0b9",
+                    "on-tertiary-fixed-variant": "#6f3800",
+                    "on-background": "#1a1c1a",
+                    "surface": "#f9faf6",
+                    "on-surface": "#1a1c1a",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-bright": "#f9faf6",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "12px",
+                    "xl": "16px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "container-max": "1280px",
+                    "unit": "4px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "label-md": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "headline-lg": ["Public Sans"],
+                    "label-sm": ["Public Sans"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #f9faf6;
+            font-family: 'Public Sans', sans-serif;
+            color: #1a1c1a;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(27, 67, 50, 0.04);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        .gauge-svg {
+            transform: rotate(-90deg);
+        }
+        .progress-circle {
+            transition: stroke-dashoffset 1s ease-out;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden">
+<!-- SideNavBar (from JSON) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant py-stack-md px-stack-md z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">EcoSphere</h1>
+<p class="text-label-sm font-medium text-on-surface-variant opacity-70">ESG Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold active:scale-98 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="eco">eco</span>
+<span class="font-label-md">Environmental</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md">Social</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-label-md">Governance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
+<span class="font-label-md">Gamification</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<button class="mb-8 w-full py-3 px-4 bg-primary text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New Report</span>
+</button>
+<div class="pt-stack-md border-t border-outline-variant">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 bg-background min-h-screen">
+<!-- TopNavBar (from JSON) -->
+<header class="w-full h-16 flex justify-between items-center px-margin-desktop sticky top-0 z-40 bg-surface/80 backdrop-blur-md shadow-sm border-b border-outline-variant">
+<div class="flex items-center gap-6">
+<span class="md:hidden material-symbols-outlined text-primary cursor-pointer">menu</span>
+<div class="hidden md:flex items-center gap-4">
+<span class="text-on-surface-variant font-medium">Reporting Period: FY24 Q3</span>
+<span class="h-4 w-px bg-outline-variant"></span>
+<span class="text-secondary font-bold px-2 py-1 bg-secondary-container/30 rounded text-sm uppercase tracking-wider">Live Audit</span>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<div class="hidden lg:flex items-center bg-surface-container-low border border-outline-variant rounded-full px-4 py-1.5 w-64">
+<span class="material-symbols-outlined text-outline text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full font-body-md" placeholder="Search metrics..." type="text"/>
+</div>
+<div class="px-4 py-2 rounded-full border border-primary text-primary font-bold text-label-md cursor-pointer hover:bg-primary hover:text-white transition-all">
+                    Score: 81/100
+                </div>
+<button class="bg-primary text-white px-5 py-2 rounded-full font-bold text-label-md active:scale-95 transition-transform">
+                    Log Carbon Data
+                </button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-outline-variant cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate executive in a modern business suit, with a soft daylight background and a slight, confident smile. The lighting is crisp and clear, conveying authority and approachability in a high-end corporate setting with a warm, sophisticated aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzuNyqZ74PEEL7xnhaRhCluKz3giEkH57bczPwLjjREb8wd3ewBYesthwe54Z-_Z8w8_vDPqzX-ugyYwFO_vKOSCRCWmwS4yQ5uhPBaf5B17tEp084TTrEWUc-Dn7GWH_851iixBsClqftMiGgo9_GQYSgaghd5xzoTaJBcMcCAS0Mj6osE0fWICcN2QP7CkZjke4ORWOVGmeUOOZ5KrqktFeyZkcJaLRpPJgRFb33pcMFTu_eNUhfow"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-margin-desktop space-y-stack-lg">
+<!-- Hero Row: Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- ESG Main Gauge (Central Feature) -->
+<div class="lg:col-span-4 bg-white rounded-xl p-stack-lg card-shadow flex flex-col items-center justify-center relative overflow-hidden group">
+
+<h3 class="font-headline-md text-primary mb-6 self-start">Total ESG Performance</h3>
+<div class="relative w-56 h-56 flex items-center justify-center">
+<svg class="gauge-svg w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary progress-circle" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="50" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-xl text-primary text-5xl">81</span>
+<span class="text-on-surface-variant font-label-md">Out of 100</span>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-3 w-full text-center divide-x divide-outline-variant">
+<div>
+<p class="text-primary font-bold">↑ 2.4%</p>
+<p class="text-label-sm text-on-surface-variant">vs LY</p>
+</div>
+<div>
+<p class="text-secondary font-bold">Gold</p>
+<p class="text-label-sm text-on-surface-variant">Tier</p>
+</div>
+<div>
+<p class="text-tertiary font-bold">92nd</p>
+<p class="text-label-sm text-on-surface-variant">Percentile</p>
+</div>
+</div>
+</div>
+<!-- Three Pillar KPIs -->
+<div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Environmental -->
+<div class="bg-white rounded-xl p-stack-md card-shadow border-t-4 border-primary group hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary-fixed rounded-lg text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<span class="text-label-sm font-bold text-primary px-2 py-0.5 bg-primary/10 rounded">Metric: 82</span>
+</div>
+<h4 class="font-headline-md text-primary text-xl mb-1">Environmental</h4>
+<p class="text-label-md text-on-surface-variant mb-6 leading-tight">Focus on Scope 1 Emissions and Water Stewardship.</p>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 82%"></div>
+</div>
+<div class="mt-4 flex items-center text-primary-fixed-dim text-sm font-bold">
+<span class="material-symbols-outlined text-sm mr-1">trending_up</span>
+                            Strong reduction in logistics footprint.
+                        </div>
+</div>
+<!-- Social -->
+<div class="bg-white rounded-xl p-stack-md card-shadow border-t-4 border-on-tertiary-container group hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-tertiary-fixed rounded-lg text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">diversity_3</span>
+</div>
+<span class="text-label-sm font-bold text-on-tertiary-container px-2 py-0.5 bg-on-tertiary-container/10 rounded">Metric: 74</span>
+</div>
+<h4 class="font-headline-md text-tertiary text-xl mb-1">Social</h4>
+<p class="text-label-md text-on-surface-variant mb-6 leading-tight">Diversity &amp; Inclusion and Community Impact.</p>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-on-tertiary-container" style="width: 74%"></div>
+</div>
+<div class="mt-4 flex items-center text-on-tertiary-container text-sm font-bold">
+<span class="material-symbols-outlined text-sm mr-1">info</span>
+                            Diversity hiring goals 12% behind target.
+                        </div>
+</div>
+<!-- Governance -->
+<div class="bg-white rounded-xl p-stack-md card-shadow border-t-4 border-secondary group hover:translate-y-[-4px] transition-transform">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-secondary-container rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">policy</span>
+</div>
+<span class="text-label-sm font-bold text-on-secondary-container px-2 py-0.5 bg-secondary-container/30 rounded">Metric: 88</span>
+</div>
+<h4 class="font-headline-md text-secondary text-xl mb-1">Governance</h4>
+<p class="text-label-md text-on-surface-variant mb-6 leading-tight">Policy adherence and Board Transparency.</p>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 88%"></div>
+</div>
+<div class="mt-4 flex items-center text-secondary text-sm font-bold">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+                            Audit completed with zero non-conformity.
+                        </div>
+</div>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Emissions Trend Line Chart (Visual Representation) -->
+<div class="lg:col-span-8 bg-white rounded-xl p-stack-lg card-shadow">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline-md text-primary">Emissions Trend (12 mo)</h3>
+<p class="text-label-md text-on-surface-variant">Carbon intensity per unit of revenue (tCO2e/$M)</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-sm bg-surface-container-high rounded-lg font-medium text-primary">1Y</button>
+<button class="px-3 py-1 text-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg font-medium">3Y</button>
+</div>
+</div>
+<div class="relative h-64 w-full flex items-end justify-between px-4 pb-6 border-b border-l border-outline-variant/30">
+<!-- Simplified Visual Chart -->
+<div class="absolute inset-x-0 bottom-0 top-0 px-10 flex items-end">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none">
+<path class="chart-line" d="M0 60 Q 50 10, 100 80 T 200 40 T 300 90 T 400 30 T 500 70 T 600 20 T 700 50 T 800 10" fill="none" stroke="#012d1d" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="800" cy="10" fill="#012d1d" r="5"></circle>
+</svg>
+</div>
+<!-- Axis Labels -->
+<div class="absolute left-[-35px] top-0 bottom-0 flex flex-col justify-between text-[10px] text-outline">
+<span>120</span><span>90</span><span>60</span><span>30</span><span>0</span>
+</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Sep</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Oct</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Nov</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Dec</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Jan</div>
+<div class="flex-1 text-center text-xs text-outline pt-2">Feb</div>
+<div class="flex-1 text-center text-xs text-outline pt-2 font-bold text-primary">Mar</div>
+</div>
+<div class="mt-6 flex gap-gutter">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-label-sm text-on-surface-variant">Actual Emissions</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="text-label-sm text-on-surface-variant">SBTi Target</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="lg:col-span-4 bg-white rounded-xl p-stack-lg card-shadow flex flex-col">
+<h3 class="font-headline-md text-primary mb-6">Recent Activity</h3>
+<div class="flex-1 space-y-6">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">upload_file</span>
+</div>
+<div>
+<p class="text-body-md font-medium"><span class="font-bold">Logistics</span> uploaded Q3 emissions data.</p>
+<p class="text-label-sm text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-on-tertiary-container/5 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container text-xl">warning</span>
+</div>
+<div>
+<p class="text-body-md font-medium"><span class="font-bold">Governance</span> flagged a missing vendor certificate.</p>
+<p class="text-label-sm text-on-surface-variant">5 hours ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary/5 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl">verified</span>
+</div>
+<div>
+<p class="text-body-md font-medium"><span class="font-bold">Board Audit</span> approved FY24 strategy shift.</p>
+<p class="text-label-sm text-on-surface-variant">Yesterday</p>
+</div>
+</div>
+</div>
+<button class="mt-8 text-primary font-bold text-label-md flex items-center hover:gap-2 transition-all">
+                        View All Activity <span class="material-symbols-outlined ml-1">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Bottom Row -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Department ESG Ranking Bar Chart -->
+<div class="lg:col-span-12 bg-white rounded-xl p-stack-lg card-shadow">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline-md text-primary">Department ESG Ranking</h3>
+<p class="text-label-md text-on-surface-variant">Performance comparison across core business units.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-5 gap-gutter items-end h-48">
+<!-- Logistics -->
+<div class="flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-lg relative h-32 overflow-hidden">
+<div class="absolute bottom-0 inset-x-0 bg-primary h-[88%] group-hover:opacity-80 transition-opacity"></div>
+<span class="absolute top-2 inset-x-0 text-center font-bold text-xs">88%</span>
+</div>
+<span class="text-label-md font-bold text-primary">Logistics</span>
+</div>
+<!-- Sales -->
+<div class="flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-lg relative h-32 overflow-hidden">
+<div class="absolute bottom-0 inset-x-0 bg-secondary h-[72%] group-hover:opacity-80 transition-opacity"></div>
+<span class="absolute top-2 inset-x-0 text-center font-bold text-xs">72%</span>
+</div>
+<span class="text-label-md font-bold text-primary">Sales</span>
+</div>
+<!-- Manufacturing -->
+<div class="flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-lg relative h-32 overflow-hidden">
+<div class="absolute bottom-0 inset-x-0 bg-primary h-[64%] group-hover:opacity-80 transition-opacity"></div>
+<span class="absolute top-2 inset-x-0 text-center font-bold text-xs">64%</span>
+</div>
+<span class="text-label-md font-bold text-primary">Manufacturing</span>
+</div>
+<!-- Corporate -->
+<div class="flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-lg relative h-32 overflow-hidden">
+<div class="absolute bottom-0 inset-x-0 bg-secondary h-[94%] group-hover:opacity-80 transition-opacity"></div>
+<span class="absolute top-2 inset-x-0 text-center font-bold text-xs">94%</span>
+</div>
+<span class="text-label-md font-bold text-primary">Corporate</span>
+</div>
+<!-- R&D -->
+<div class="flex flex-col items-center gap-4 group">
+<div class="w-full bg-surface-container-high rounded-t-lg relative h-32 overflow-hidden">
+<div class="absolute bottom-0 inset-x-0 bg-primary h-[82%] group-hover:opacity-80 transition-opacity"></div>
+<span class="absolute top-2 inset-x-0 text-center font-bold text-xs">82%</span>
+</div>
+<span class="text-label-md font-bold text-primary">R&amp;D</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Subtle Footer -->
+<footer class="p-margin-desktop text-center border-t border-outline-variant bg-surface-container-low">
+<p class="text-label-sm text-on-surface-variant">© 2024 EcoSphere ESG Management. All Data Verified via Blockchain Audit Trail.</p>
+</footer>
+</main>
+<script>
+        // Micro-interaction for the Gauge
+        document.addEventListener('DOMContentLoaded', () => {
+            const circle = document.querySelector('.progress-circle');
+            const score = 81;
+            const radius = circle.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            const offset = circumference - (score / 100) * circumference;
+            
+            // Trigger animation after load
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 500);
+        });
+
+        // Hover animation for department bars
+        const bars = document.querySelectorAll('.group');
+        bars.forEach(bar => {
+            bar.addEventListener('mouseenter', () => {
+                bar.querySelector('.h-32').style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+            });
+            bar.addEventListener('mouseleave', () => {
+                bar.querySelector('.h-32').style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body></html>

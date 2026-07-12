@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EcoSphere | Social &amp; Engagement</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        .forest-shadow {
+            box-shadow: 0px 4px 20px rgba(27, 67, 50, 0.04);
+        }
+        .terracotta-gradient {
+            background: linear-gradient(135deg, #ea9147 0%, #ba1a1a 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f9faf6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c8c2;
+            border-radius: 4px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#717973",
+                        "secondary-container": "#a0f4c8",
+                        "on-tertiary-container": "#ea9147",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "surface-container-high": "#e8e8e5",
+                        "tertiary-container": "#5f2f00",
+                        "on-tertiary-fixed": "#2f1400",
+                        "primary-container": "#1b4332",
+                        "tertiary-fixed": "#ffdcc4",
+                        "tertiary": "#3f1d00",
+                        "on-surface-variant": "#414844",
+                        "secondary-fixed": "#a0f4c8",
+                        "on-primary-container": "#86af99",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#85d7ad",
+                        "on-primary-fixed": "#002114",
+                        "primary": "#012d1d",
+                        "secondary": "#0e6c4a",
+                        "surface-variant": "#e2e3e0",
+                        "on-secondary-fixed": "#002113",
+                        "inverse-primary": "#a5d0b9",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c1c8c2",
+                        "surface-container": "#eeeeeb",
+                        "inverse-on-surface": "#f0f1ee",
+                        "surface-tint": "#3f6653",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dadad7",
+                        "background": "#f9faf6",
+                        "surface-container-low": "#f3f4f1",
+                        "primary-fixed": "#c1ecd4",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e2e3e0",
+                        "on-secondary-container": "#19724f",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#2f312f",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-background": "#1a1c1a",
+                        "surface": "#f9faf6",
+                        "on-surface": "#1a1c1a",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f9faf6",
+                        "error": "#ba1a1a",
+                        "terracotta": "#ea9147"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "unit": "4px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Public Sans"],
+                        "headline-xl": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "label-sm": ["Public Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen overflow-x-hidden flex">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-stack-md px-stack-md z-40">
+<div class="mb-stack-lg px-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">EcoSphere</h1>
+<p class="text-label-sm text-on-surface-variant tracking-wider uppercase">ESG Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">eco</span>
+<span class="font-label-md">Environmental</span>
+</a>
+<!-- ACTIVE: Social -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="font-label-md">Social</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span class="font-label-md">Governance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-label-md">Gamification</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-stack-md border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded-lg font-bold mb-4 active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Report
+            </button>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-error hover:bg-error-container/20 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar Anchor -->
+<header class="w-full h-16 flex justify-between items-center px-margin-desktop sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Social Engagement</h2>
+</div>
+<div class="flex items-center gap-gutter">
+<div class="bg-surface-container-low px-4 py-2 rounded-full flex items-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined text-primary">emoji_events</span>
+<span class="font-label-md text-primary">Social Score: 81/100</span>
+</div>
+<button class="bg-primary text-on-primary font-label-md px-6 py-2 rounded-full cursor-pointer active:scale-95 transition-transform">
+                    Log Carbon Data
+                </button>
+<div class="w-10 h-10 rounded-full bg-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate executive in her late 30s, looking confidently at the camera. The lighting is soft and warm, reflecting a sophisticated office environment with green plants in the background. The visual style is crisp and high-trust, consistent with a modern corporate dashboard aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOi4bHxadRe79dJJrwbJNc80HTVDWkXJp30sJpDfByTIzjxssAOgUX3E2IxQGMhkoXGF_N51svbppcF9vWQn41GuCOGNP-U3s872CootdouFrjmEAGBi3epeDGR-byzVG6jh0i478aIAhIR6zCisMjQXd_PZuD-LxXzy8eOxD_TP8-EcYqi2_ZJx3SSNKSlgBvUszs4pe7a7GHNinCMzuyR1ynVnNVRrvNCHouR-uw_zVAjQMuIcCsMg"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="p-margin-desktop space-y-stack-lg max-w-[1400px] mx-auto w-full">
+<!-- Section: Active CSR Initiatives -->
+<section>
+<div class="flex items-center justify-between mb-stack-md">
+<h3 class="font-headline-md text-primary">Active CSR Initiatives</h3>
+<button class="text-terracotta font-label-md flex items-center gap-1 hover:underline">
+                        View All Initiatives <span class="material-symbols-outlined">arrow_right_alt</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Tree Plantation -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden forest-shadow group hover:translate-y-[-4px] transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A wide-angle landscape shot of a lush green reforestation project. Young saplings are being planted in neat rows across a rolling hillside under a clear blue sky. The lighting is bright and optimistic, emphasizing environmental stewardship and a sustainable future. The style is professional, high-resolution photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP1oLIofOJOd1HfVKgrXTrJ8fHvekyR68WgvOk3uhHPu1_XPVv6t_f4LkfOjW_ZuFkb0WO-Yq9iCGD3fC6iANPcQwSf0Ir1Q4h3736HqD0IRvnTfMt5lv11mfdQuGCzDbr_MTkZtKnhGuozjlZLyCJoggrOzOQX8fziIVqHgrociVoMpYjkhJO8XoygeVMvssVvHfpWwwN_RrWNzJXt72Uk0RXh3bt2YTQ0KhLUyCkDesw5TnfuPzEAg"/>
+<div class="absolute top-4 right-4 bg-primary/90 text-white text-[10px] px-3 py-1 rounded-full uppercase font-bold tracking-widest">Environmental</div>
+</div>
+<div class="p-stack-md">
+<h4 class="font-bold text-lg text-primary mb-1">Tree Plantation Drive</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Target: 5,000 saplings in the Amazon Buffer Zone by Q3.</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm text-outline">412 Participants</span>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm active:scale-95 transition-all">Join</button>
+</div>
+</div>
+</div>
+<!-- Blood Donation -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden forest-shadow group hover:translate-y-[-4px] transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A clean, sterile, and professional medical setting where a blood donation drive is taking place. The focus is on a modern medical station with warm lighting and soft pastel colors to create a sense of safety and community care. The image communicates corporate social responsibility and humanitarian impact." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6Id-rcxlGU4CAYzhWtE_0inOyP9dWnlSypBjbtgcRJayo60cT4A_kpbqjPOLYDhW_NIzfd1lgvUxTyH2bhlp6uNx7vwcf8_8IHr0fFjuDk-lj6LSS63WPaTZAt4mHo_fj0JzMDQJLal_-w15t7Zji8EhDLqAxcA0e3AUfWk10KNVZiVMtnA-xvPDqJfI3ZbVxyzk6RDAVM8XRlw60FSpOh0qADASgovBgocV4-pDkAiUFizvezeTtRA"/>
+<div class="absolute top-4 right-4 bg-terracotta text-white text-[10px] px-3 py-1 rounded-full uppercase font-bold tracking-widest">Social</div>
+</div>
+<div class="p-stack-md">
+<h4 class="font-bold text-lg text-primary mb-1">Annual Blood Donation</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Partnered with City Red Cross for our quarterly drive.</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm text-outline">89 Registered</span>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm active:scale-95 transition-all">Join</button>
+</div>
+</div>
+</div>
+<!-- Coastal Cleanup -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden forest-shadow group hover:translate-y-[-4px] transition-all duration-300">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A beautiful shoreline with volunteers in corporate shirts picking up debris under a golden sunset. The lighting is warm and evocative, showing a tactile undercurrent of community action. The visual aesthetic is calm, professional, and ethical, reflecting the brand's pillars of stewardship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD48r5S79F9o_DQ4sivmPYR63MJ-WgJtQ-WVuoHybRwq5kYBlRowjEjBtSV-uRRzzQ3trPfdlKGxpNKU_4QA3J-OfVHBMIGa1hqmRjFGGAeaL0Pw8HLJIrkhThQjhouCDlUU3yiI0NAVSdL1e25o4S35Xc6JXhqyCPhKkjybheWPz_LZ4LQKKvjVq34OUNSD7MJUg0dpH4IuVeZmelW8EZce53GhRwWeHSvaS0-izmvxQkNtY6FADqT7w"/>
+<div class="absolute top-4 right-4 bg-primary/90 text-white text-[10px] px-3 py-1 rounded-full uppercase font-bold tracking-widest">Environmental</div>
+</div>
+<div class="p-stack-md">
+<h4 class="font-bold text-lg text-primary mb-1">Coastal Cleanup</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Restoring the Bay Area marine ecosystem. Equipment provided.</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm text-outline">156 Registered</span>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-bold text-sm active:scale-95 transition-all">Join</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Diversity & Training -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Diversity Metrics Hub -->
+<section class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-stack-lg forest-shadow border border-outline-variant/30 flex flex-col">
+<div class="flex items-center justify-between mb-stack-lg">
+<div>
+<h3 class="font-headline-md text-primary">Diversity Metrics Hub</h3>
+<p class="text-body-md text-on-surface-variant">Real-time equitable hiring &amp; workforce data.</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-terracotta/10 text-terracotta font-bold text-xs uppercase tracking-tighter">Social Pillar</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-lg flex-1">
+<!-- Gauge for 70% Diverse Hire -->
+<div class="flex flex-col items-center justify-center space-y-4">
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="#f3f4f1" stroke-width="10"></circle>
+<circle class="transition-all duration-1000" cx="50" cy="50" fill="transparent" r="45" stroke="#ea9147" stroke-dasharray="282.7" stroke-dashoffset="84.8" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-4xl font-extrabold text-primary">70%</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">Diverse Hire</span>
+</div>
+</div>
+<p class="text-label-sm text-center text-on-surface-variant">Exceeding Q2 target of 65%</p>
+</div>
+<!-- Gender Distribution Data -->
+<div class="space-y-stack-md flex flex-col justify-center">
+<div class="space-y-2">
+<div class="flex justify-between text-label-md">
+<span class="text-on-surface-variant">Female</span>
+<span class="font-bold">48%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-terracotta h-full w-[48%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-md">
+<span class="text-on-surface-variant">Male</span>
+<span class="font-bold">45%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-md">
+<span class="text-on-surface-variant">Non-binary / Other</span>
+<span class="font-bold">7%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-outline h-full w-[7%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Training Completion Bars -->
+<section class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-stack-lg forest-shadow border border-outline-variant/30">
+<h3 class="font-headline-md text-primary mb-1">Training Compliance</h3>
+<p class="text-label-sm text-on-surface-variant mb-stack-lg">Global team completion rates</p>
+<div class="space-y-6">
+<!-- Ethics -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-bold text-primary">Business Ethics</span>
+<span class="text-label-md text-on-surface-variant">94%</span>
+</div>
+<div class="w-full bg-surface-container h-3 rounded-full relative">
+<div class="absolute inset-y-0 left-0 bg-primary rounded-full w-[94%]"></div>
+</div>
+</div>
+<!-- DEI -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-bold text-primary">DEI Principles</span>
+<span class="text-label-md text-on-surface-variant">88%</span>
+</div>
+<div class="w-full bg-surface-container h-3 rounded-full relative">
+<div class="absolute inset-y-0 left-0 bg-terracotta rounded-full w-[88%]"></div>
+</div>
+</div>
+<!-- Cybersecurity -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-bold text-primary">Cybersecurity Awareness</span>
+<span class="text-label-md text-on-surface-variant">72%</span>
+</div>
+<div class="w-full bg-surface-container h-3 rounded-full relative">
+<div class="absolute inset-y-0 left-0 bg-primary/60 rounded-full w-[72%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-stack-lg p-4 bg-surface-container-low rounded-lg border border-outline-variant/30 flex items-start gap-3">
+<span class="material-symbols-outlined text-terracotta">warning</span>
+<p class="text-label-sm text-on-surface-variant leading-relaxed">Cybersecurity module deadline is in <span class="font-bold">4 days</span>. Send automated reminders?</p>
+</div>
+</section>
+</div>
+<!-- Participation Approval Queue Table -->
+<section class="bg-surface-container-lowest rounded-xl forest-shadow border border-outline-variant/30 overflow-hidden">
+<div class="p-stack-lg border-b border-outline-variant/30 flex justify-between items-center bg-white">
+<div>
+<h3 class="font-headline-md text-primary">Participation Approval Queue</h3>
+<p class="text-label-sm text-on-surface-variant">Review employee submissions for volunteer hours.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="px-4 py-2 text-label-md border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">Export CSV</button>
+<button class="px-4 py-2 text-label-md bg-primary text-white rounded-lg active:scale-95 transition-transform">Bulk Approve</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low text-on-surface-variant text-label-sm font-bold uppercase tracking-wider">
+<tr>
+<th class="px-6 py-4">Employee</th>
+<th class="px-6 py-4">Initiative</th>
+<th class="px-6 py-4">Date</th>
+<th class="px-6 py-4">Hours</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">SM</div>
+<div>
+<p class="font-bold text-primary">Sarah Miller</p>
+<p class="text-label-sm text-on-surface-variant">Marketing Dept.</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-medium text-on-surface">Tree Plantation Drive</td>
+<td class="px-6 py-4 text-on-surface-variant">Oct 12, 2023</td>
+<td class="px-6 py-4 font-bold">4.5 hrs</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-terracotta/20 text-terracotta font-bold text-[10px] uppercase">Pending</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-green-100 text-green-700 rounded-full"><span class="material-symbols-outlined">check_circle</span></button>
+<button class="p-2 hover:bg-red-100 text-red-700 rounded-full"><span class="material-symbols-outlined">cancel</span></button>
+</div>
+</td>
+</tr>
+<tr class="bg-surface-container-low/30 hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-xs">RK</div>
+<div>
+<p class="font-bold text-primary">Robert Kane</p>
+<p class="text-label-sm text-on-surface-variant">Legal &amp; Compliance</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-medium text-on-surface">Coastal Cleanup</td>
+<td class="px-6 py-4 text-on-surface-variant">Oct 14, 2023</td>
+<td class="px-6 py-4 font-bold">6.0 hrs</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-terracotta/20 text-terracotta font-bold text-[10px] uppercase">Pending</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-green-100 text-green-700 rounded-full"><span class="material-symbols-outlined">check_circle</span></button>
+<button class="p-2 hover:bg-red-100 text-red-700 rounded-full"><span class="material-symbols-outlined">cancel</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold text-xs">LD</div>
+<div>
+<p class="font-bold text-primary">Li Dan</p>
+<p class="text-label-sm text-on-surface-variant">Product Engineering</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-medium text-on-surface">Blood Donation</td>
+<td class="px-6 py-4 text-on-surface-variant">Oct 15, 2023</td>
+<td class="px-6 py-4 font-bold">2.0 hrs</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded bg-terracotta/20 text-terracotta font-bold text-[10px] uppercase">Pending</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-green-100 text-green-700 rounded-full"><span class="material-symbols-outlined">check_circle</span></button>
+<button class="p-2 hover:bg-red-100 text-red-700 rounded-full"><span class="material-symbols-outlined">cancel</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<footer class="mt-auto py-stack-lg px-margin-desktop border-t border-outline-variant bg-surface-container-low/50">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-label-sm text-on-surface-variant">© 2023 EcoSphere ESG. All rights reserved. Data transparency is our core mission.</p>
+<div class="flex gap-gutter">
+<a class="text-label-sm text-primary hover:underline font-bold" href="#">Privacy Policy</a>
+<a class="text-label-sm text-primary hover:underline font-bold" href="#">Audit Reports</a>
+</div>
+</div>
+</footer>
+</main>
+<script>
+        // Micro-interactions and data visualization logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simulated delay for "loading" the gauge
+            const circle = document.querySelector('circle[stroke="#ea9147"]');
+            if(circle) {
+                circle.style.strokeDashoffset = '282.7';
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = '84.8'; // 70% of 282.7 (perimeter of circle with r=45)
+                }, 500);
+            }
+
+            // Hover interactions for table rows
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    row.querySelector('.flex.justify-end').classList.remove('opacity-0');
+                    row.querySelector('.flex.justify-end').classList.add('opacity-100');
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.querySelector('.flex.justify-end').classList.add('opacity-0');
+                    row.querySelector('.flex.justify-end').classList.remove('opacity-100');
+                });
+            });
+        });
+    </script>
+</body></html>
