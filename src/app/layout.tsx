@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EcoSphere | Premium ESG Dashboard",
-  description: "Monitor carbon emissions, promote employee well-being, and maintain governance compliance with real-time insights.",
+  title: "EcoSphere | ERP ESG Module",
+  description: "Enterprise ESG Management and Reporting.",
 };
 
 export default function RootLayout({
@@ -23,13 +23,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} font-sans`}>
-      <body className="flex min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-primary/30">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <body className="flex min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-primary/30 antialiased">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <ToastProvider>
             <Sidebar />
             <main className="flex-1 md:ml-64 min-h-screen flex flex-col relative z-0">
               <Topbar />
-              <div className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full animate-fade-in">
+              <div className="flex-1 p-6 md:p-8 max-w-[1600px] w-full animate-fade-in">
                 {children}
               </div>
             </main>

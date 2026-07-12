@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 import { Leaf, Droplets, Wind, MoreHorizontal, ArrowRight, TrendingDown, Search, Filter } from "lucide-react";
 import { useToast } from "@/components/Toast";
 
@@ -34,122 +34,97 @@ export default function Environmental() {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      toast(`Searching for: ${searchValue}`, "info");
+      toast(`Querying database for: ${searchValue}`, "info");
       e.currentTarget.blur();
     }
   };
 
   const handleRowClick = (id: string) => {
-    toast(`Opening details for ${id}`, "info");
+    toast(`Opening record detail for ${id}`, "info");
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 pb-8">
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-4 border-b border-border pb-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <Leaf className="text-emerald-500" size={32} />
-            Environmental Tracking
+          <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            Environmental Tracking Module
           </h2>
-          <p className="text-muted-foreground mt-1">Monitor your carbon footprint, resource usage, and active initiatives.</p>
+          <p className="text-sm text-muted-foreground mt-1">Resource consumption and emissions tracking across all facilities.</p>
         </div>
       </div>
 
-      {/* Hero Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Sustainability Goals */}
-        <section className="md:col-span-2 glass-panel p-6 rounded-2xl">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-semibold text-lg">Active Sustainability Goals</h3>
-            <button onClick={() => toast("Goal management not implemented", "info")} className="text-muted-foreground hover:text-foreground transition-colors"><MoreHorizontal size={20} /></button>
+      {/* Top Row */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="erp-panel p-4 rounded-md">
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 tracking-wider">Total Carbon YTD</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold">2,481.5</h3>
+            <span className="text-xs text-muted-foreground">tCO2e</span>
           </div>
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Reduce Fleet Emissions</span>
-                <span className="text-sm font-bold text-emerald-500">78%</span>
-              </div>
-              <div className="w-full bg-black/5 dark:bg-white/5 rounded-full h-2 overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: loaded ? '78%' : '0%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Cut Packaging Waste</span>
-                <span className="text-sm font-bold text-blue-500">42%</span>
-              </div>
-              <div className="w-full bg-black/5 dark:bg-white/5 rounded-full h-2 overflow-hidden">
-                <div className="bg-blue-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ width: loaded ? '42%' : '0%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Renewable Energy Shift</span>
-                <span className="text-sm font-bold text-purple-500">15%</span>
-              </div>
-              <div className="w-full bg-black/5 dark:bg-white/5 rounded-full h-2 overflow-hidden">
-                <div className="bg-purple-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(168,85,247,0.5)]" style={{ width: loaded ? '15%' : '0%' }}></div>
-              </div>
-            </div>
+          <div className="mt-2 flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+            <TrendingDown size={14} /> -4.2% vs last year
           </div>
-        </section>
+        </div>
+        
+        <div className="erp-panel p-4 rounded-md">
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 tracking-wider">Scope 1 (Direct)</p>
+          <div className="flex justify-between items-end">
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-xl font-bold">297.8</h3>
+              <span className="text-xs text-muted-foreground">tCO2e</span>
+            </div>
+            <span className="text-xs font-bold px-2 py-0.5 bg-muted rounded border border-border">12%</span>
+          </div>
+        </div>
 
-        {/* Reforestation Project Card */}
-        <section className="glass-panel p-1 rounded-2xl overflow-hidden flex flex-col group relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 pointer-events-none"></div>
-          <div className="h-48 relative rounded-xl overflow-hidden m-1 z-10">
-            <img 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-              alt="Amazonia Reforestation"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzj3Ojyh1RRCv03_pjcLnykkmE4ZYRf19xRKJCbPvkUINd6TV6t7B9KghiK-974T1NJzLlq-J1a5yKfougplD_xu1o54tAApaGMXYiKFDsyUNHzTZMgE04AziR50skyltNMXY8Tx_ZiFPGg-j05KLpBY-pJeuQ19ACECrqLcnv3ncxPl3KLu16tGHiopC6ANIMmNpUt2gRhpB-4H8Iq2K943nIHWiUemeWZtogI1DbT2VHF-amBimzLg"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-            <div className="absolute top-3 right-3 bg-emerald-500/90 backdrop-blur text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow">Active</div>
-            <div className="absolute bottom-3 left-4">
-              <h3 className="font-bold text-lg text-white mb-0.5">Amazonia Reforestation</h3>
-              <p className="text-white/70 text-xs">Biodiversity restoration in Brazil.</p>
+        <div className="erp-panel p-4 rounded-md">
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 tracking-wider">Scope 2 (Indirect)</p>
+          <div className="flex justify-between items-end">
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-xl font-bold">868.5</h3>
+              <span className="text-xs text-muted-foreground">tCO2e</span>
             </div>
+            <span className="text-xs font-bold px-2 py-0.5 bg-muted rounded border border-border">35%</span>
           </div>
-          <div className="p-4 flex-1 flex flex-col justify-end z-10">
-            <div className="flex justify-between items-end">
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Contribution</p>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">12.4k <span className="text-sm font-normal text-muted-foreground">Trees</span></p>
-              </div>
-              <button onClick={() => toast("Redirecting to project page...", "info")} className="text-primary hover:text-primary-foreground bg-primary/10 hover:bg-primary p-2 rounded-full transition-colors">
-                <ArrowRight size={16} />
-              </button>
+        </div>
+
+        <div className="erp-panel p-4 rounded-md">
+          <p className="text-xs font-semibold text-muted-foreground uppercase mb-2 tracking-wider">Scope 3 (Value Chain)</p>
+          <div className="flex justify-between items-end">
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-xl font-bold">1,315.2</h3>
+              <span className="text-xs text-muted-foreground">tCO2e</span>
             </div>
+            <span className="text-xs font-bold px-2 py-0.5 bg-muted rounded border border-border">53%</span>
           </div>
-        </section>
+        </div>
       </div>
 
-      {/* Second Row: Chart and Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Chart and Goals */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Emission Intensity Index */}
-        <div className="lg:col-span-8 glass-panel p-6 rounded-2xl">
-          <div className="flex justify-between items-center mb-6">
+        <div className="lg:col-span-8 erp-panel p-4 rounded-md">
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="font-semibold text-lg">Emission Intensity Index</h3>
-              <p className="text-sm text-muted-foreground">tCO2e per $M Revenue — Monthly breakdown</p>
-            </div>
-            <div className="flex gap-1 bg-black/5 dark:bg-black/40 p-1 rounded-lg border border-white/5">
-              <button onClick={() => toast("2023 Data loaded.", "success")} className="px-3 py-1 text-xs text-muted-foreground hover:text-foreground rounded-md transition-colors">2023</button>
-              <button className="px-3 py-1 text-xs bg-white dark:bg-white/10 rounded-md font-medium text-foreground shadow-sm">2024</button>
+              <h3 className="font-semibold text-sm">Monthly Emission Intensity</h3>
+              <p className="text-xs text-muted-foreground">tCO2e per $M Revenue</p>
             </div>
           </div>
-          <div className="h-64 w-full">
+          <div className="h-60 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={intensityData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#a1a1aa', fontSize: 10}} dy={10} />
+              <BarChart data={intensityData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 10}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--muted-fg)', fontSize: 10}} />
                 <Tooltip 
-                  cursor={{fill: 'rgba(128,128,128,0.1)'}}
-                  contentStyle={{ backgroundColor: 'var(--glass-bg)', backdropFilter: 'blur(8px)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--fg-color)' }}
+                  cursor={{fill: 'var(--surface-hover)'}}
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '4px', color: 'var(--fg-color)' }}
                 />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={30}>
                   {intensityData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.active ? '#10b981' : 'rgba(16, 185, 129, 0.2)'} />
+                    <Cell key={`cell-${index}`} fill={entry.active ? '#059669' : 'var(--border-color)'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -157,72 +132,68 @@ export default function Environmental() {
           </div>
         </div>
 
-        {/* Scope Summary */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden group border border-emerald-500/30">
-            <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4 group-hover:scale-110 transition-transform duration-700">
-              <Wind size={150} />
-            </div>
-            <h4 className="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">Total Carbon Footprint</h4>
-            <p className="text-4xl font-extrabold tracking-tight">2,481.5</p>
-            <p className="text-sm opacity-90 mt-1">tCO2e Year-to-Date</p>
-            <div className="mt-6 flex items-center gap-1 bg-black/20 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/10">
-              <TrendingDown size={14} className="text-emerald-300" />
-              <span className="text-xs font-bold text-emerald-300">-4.2% from last period</span>
-            </div>
+        {/* Sustainability Goals List */}
+        <div className="lg:col-span-4 erp-panel p-4 rounded-md flex flex-col">
+          <div className="flex justify-between items-center mb-4 border-b border-border pb-2">
+            <h3 className="font-semibold text-sm">Active Initiatives</h3>
+            <button onClick={() => toast("Opening project settings", "info")} className="text-muted-foreground hover:text-foreground transition-colors"><MoreHorizontal size={16} /></button>
           </div>
-
-          <div className="glass-panel p-6 rounded-2xl">
-            <h4 className="font-semibold text-sm mb-4 uppercase tracking-wider text-muted-foreground">Emissions by Source</h4>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                  <span className="text-sm font-medium">Scope 1 (Direct)</span>
-                </div>
-                <span className="text-sm font-bold">12%</span>
+          <div className="space-y-4 flex-1">
+            <div>
+              <div className="flex justify-between mb-1.5">
+                <span className="text-xs font-medium">Fleet Electrification</span>
+                <span className="text-xs font-bold text-foreground">78%</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
-                  <span className="text-sm font-medium">Scope 2 (Indirect)</span>
-                </div>
-                <span className="text-sm font-bold">35%</span>
+              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                <div className="bg-emerald-600 h-full rounded-full" style={{ width: '78%' }}></div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"></div>
-                  <span className="text-sm font-medium">Scope 3 (Value Chain)</span>
-                </div>
-                <span className="text-sm font-bold">53%</span>
+            </div>
+            <div>
+              <div className="flex justify-between mb-1.5">
+                <span className="text-xs font-medium">Packaging Waste Reduction</span>
+                <span className="text-xs font-bold text-foreground">42%</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                <div className="bg-blue-600 h-full rounded-full" style={{ width: '42%' }}></div>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-1.5">
+                <span className="text-xs font-medium">Solar Transition (Plant C)</span>
+                <span className="text-xs font-bold text-foreground">15%</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                <div className="bg-amber-500 h-full rounded-full" style={{ width: '15%' }}></div>
               </div>
             </div>
           </div>
+          <button onClick={() => toast("Loading initiatives list", "info")} className="mt-4 w-full py-1.5 bg-muted border border-border hover:bg-background rounded text-xs font-medium transition-colors text-foreground">
+            Manage Initiatives
+          </button>
         </div>
       </div>
 
       {/* Carbon Transactions Table */}
-      <section className="glass-panel rounded-2xl overflow-visible">
-        <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02]">
+      <div className="erp-panel rounded-md">
+        <div className="p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/50">
           <div>
-            <h3 className="font-semibold text-lg">Carbon Transactions Ledger</h3>
-            <p className="text-sm text-muted-foreground">Immutable record of environmental assets.</p>
+            <h3 className="font-semibold text-sm">Emissions Database</h3>
           </div>
-          <div className="flex gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+          <div className="flex gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
               <input 
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 onKeyDown={handleSearch}
-                className="pl-9 pr-4 py-2 bg-black/5 dark:bg-black/40 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 w-full sm:w-64 transition-all" 
-                placeholder="Search asset ID..." 
+                className="pl-8 pr-3 py-1.5 bg-background border border-border rounded text-xs focus:outline-none focus:border-primary w-full sm:w-64" 
+                placeholder="Search record ID..." 
                 type="text"
               />
             </div>
             
             <div className="relative">
-              <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center gap-2 px-3 py-2 border border-white/10 rounded-lg text-sm hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground">
+              <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-background border border-border rounded text-xs hover:bg-muted transition-colors text-foreground">
                 <Filter size={14} />
                 <span className="hidden sm:inline">Filter</span>
               </button>
@@ -230,20 +201,20 @@ export default function Environmental() {
               {isFilterOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)}></div>
-                  <div className="absolute right-0 top-full mt-2 w-64 p-4 rounded-xl glass-panel bg-background/95 border border-white/10 shadow-2xl z-50 animate-fade-in-up">
-                    <h4 className="text-sm font-bold mb-3 text-foreground">Filter by Status</h4>
-                    <div className="space-y-2 mb-4">
-                      <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
-                        <input type="checkbox" className="rounded border-white/20 bg-black/20 text-primary focus:ring-primary" defaultChecked /> Verified
+                  <div className="absolute right-0 top-full mt-1 w-56 p-3 rounded-md bg-card border border-border shadow-lg z-50">
+                    <h4 className="text-xs font-bold mb-2 text-foreground">Status Filter</h4>
+                    <div className="space-y-1.5 mb-3">
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                        <input type="checkbox" className="rounded border-border" defaultChecked /> Verified
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
-                        <input type="checkbox" className="rounded border-white/20 bg-black/20 text-primary focus:ring-primary" defaultChecked /> Auditing
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                        <input type="checkbox" className="rounded border-border" defaultChecked /> Pending Audit
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
-                        <input type="checkbox" className="rounded border-white/20 bg-black/20 text-primary focus:ring-primary" defaultChecked /> Action Required
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                        <input type="checkbox" className="rounded border-border" defaultChecked /> Flagged
                       </label>
                     </div>
-                    <button onClick={handleApplyFilter} className="w-full bg-primary text-primary-foreground text-sm font-bold py-2 rounded-lg hover:bg-emerald-400">Apply Filters</button>
+                    <button onClick={handleApplyFilter} className="w-full bg-primary text-primary-foreground text-xs font-bold py-1.5 rounded hover:bg-primary/90">Apply</button>
                   </div>
                 </>
               )}
@@ -252,44 +223,40 @@ export default function Environmental() {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="bg-black/5 dark:bg-black/20 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-                <th className="px-6 py-4">Asset ID</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Origin</th>
-                <th className="px-6 py-4 text-right">Emissions (tCO2e)</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Date</th>
+              <tr className="bg-muted border-b border-border text-muted-foreground text-xs font-semibold">
+                <th className="px-4 py-2 border-r border-border w-32">Record ID</th>
+                <th className="px-4 py-2 border-r border-border">Category</th>
+                <th className="px-4 py-2 border-r border-border">Facility</th>
+                <th className="px-4 py-2 border-r border-border text-right">Value (tCO2e)</th>
+                <th className="px-4 py-2 border-r border-border">Status</th>
+                <th className="px-4 py-2 text-right">Date Logged</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border">
               {[
-                { id: "#ASSET-0921-F", cat: "Logistics", catBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20", origin: "Berlin Hub", em: "42.15", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", statDot: "bg-emerald-500 shadow-[0_0_5px_#34d399]", date: "Jun 14, 2024" },
-                { id: "#ASSET-0842-X", cat: "Data Center", catBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20", origin: "Virginia", em: "118.04", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", statDot: "bg-emerald-500 shadow-[0_0_5px_#34d399]", date: "Jun 12, 2024" },
-                { id: "#ASSET-0773-M", cat: "Fleet", catBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20", origin: "Corporate", em: "24.50", stat: "Auditing", statCol: "text-amber-600 dark:text-amber-400", statDot: "bg-amber-500 shadow-[0_0_5px_#fbbf24]", date: "Jun 10, 2024" },
-                { id: "#ASSET-0651-B", cat: "Manufacturing", catBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20", origin: "Plant C", em: "312.90", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", statDot: "bg-emerald-500 shadow-[0_0_5px_#34d399]", date: "Jun 08, 2024" },
-                { id: "#ASSET-0520-L", cat: "Travel", catBg: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20", origin: "Global HQ", em: "12.22", stat: "Action Req", statCol: "text-red-600 dark:text-red-400", statDot: "bg-red-500 shadow-[0_0_5px_#f87171]", date: "Jun 05, 2024" }
+                { id: "ENV-24-001", cat: "Logistics", origin: "Berlin Hub", em: "42.15", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", bg: "bg-background" },
+                { id: "ENV-24-002", cat: "Data Center", origin: "Virginia", em: "118.04", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", bg: "bg-muted/30" },
+                { id: "ENV-24-003", cat: "Fleet", origin: "Corporate", em: "24.50", stat: "Pending", statCol: "text-amber-600 dark:text-amber-500", bg: "bg-background" },
+                { id: "ENV-24-004", cat: "Manufacturing", origin: "Plant C", em: "312.90", stat: "Verified", statCol: "text-emerald-600 dark:text-emerald-400", bg: "bg-muted/30" },
+                { id: "ENV-24-005", cat: "Travel", origin: "Global HQ", em: "12.22", stat: "Flagged", statCol: "text-red-600 dark:text-red-400", bg: "bg-background" }
               ].map((row, i) => (
-                <tr key={i} onClick={() => handleRowClick(row.id)} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer group">
-                  <td className="px-6 py-4 font-mono text-sm text-foreground">{row.id}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 text-[10px] rounded border font-bold uppercase tracking-wider ${row.catBg}`}>{row.cat}</span>
+                <tr key={i} onClick={() => handleRowClick(row.id)} className={`hover:bg-muted transition-colors cursor-pointer ${row.bg}`}>
+                  <td className="px-4 py-2 border-r border-border font-mono text-xs font-medium text-foreground">{row.id}</td>
+                  <td className="px-4 py-2 border-r border-border text-xs">{row.cat}</td>
+                  <td className="px-4 py-2 border-r border-border text-xs text-muted-foreground">{row.origin}</td>
+                  <td className="px-4 py-2 border-r border-border text-xs font-semibold text-foreground text-right">{row.em}</td>
+                  <td className="px-4 py-2 border-r border-border">
+                    <span className={`text-xs font-semibold ${row.statCol}`}>{row.stat}</span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{row.origin}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-foreground text-right">{row.em}</td>
-                  <td className="px-6 py-4">
-                    <span className={`flex items-center gap-1.5 ${row.statCol} font-medium text-xs`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${row.statDot}`}></span> {row.stat}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground text-right">{row.date}</td>
+                  <td className="px-4 py-2 text-xs text-muted-foreground text-right">2024-06-14</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

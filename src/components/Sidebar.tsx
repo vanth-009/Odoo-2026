@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Leaf, Users, ShieldCheck, Medal, BarChart3, Settings, Plus, LifeBuoy, LogOut } from "lucide-react";
+import { LayoutDashboard, Leaf, Users, ShieldCheck, Medal, BarChart3, Settings, Plus, LifeBuoy, LogOut, Package } from "lucide-react";
 import Modal from "@/components/Modal";
 import { useToast } from "@/components/Toast";
 
@@ -44,107 +44,104 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 glass-panel border-r border-white/5 z-40 bg-background/50">
-        <div className="flex items-center gap-3 mb-10 p-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
-            <Leaf className="text-white" size={20} strokeWidth={2.5} />
+      <aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-card border-r border-border z-40">
+        <div className="flex items-center gap-3 mb-6 p-6 pb-2 border-b border-border">
+          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground shrink-0">
+            <Package size={18} strokeWidth={2.5} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">EcoSphere</h1>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Intelligence</p>
+            <h1 className="text-lg font-bold tracking-tight text-foreground leading-none">EcoSphere ERP</h1>
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-1">Internal ESG Module</p>
           </div>
         </div>
         
-        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
-          <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Main Menu</p>
+        <div className="px-4 mb-4">
+          <button 
+            onClick={() => setIsReportModalOpen(true)}
+            className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded text-sm font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            New Entry
+          </button>
+        </div>
+
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+          <p className="px-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 mt-2">Applications</p>
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 group ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                   isActive 
-                    ? "bg-primary/10 text-primary font-semibold shadow-inner border border-primary/20" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    ? "bg-primary/10 text-primary font-medium" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <item.icon 
                   size={18} 
-                  className={`transition-colors duration-300 ${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} 
+                  className={isActive ? 'text-primary' : 'text-muted-foreground'} 
                 />
                 <span className="text-sm">{item.name}</span>
-                {isActive && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse-slow" />
-                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
-          <button 
-            onClick={() => setIsReportModalOpen(true)}
-            className="w-full py-2.5 px-4 bg-primary hover:bg-emerald-400 text-primary-foreground rounded-lg font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]"
-          >
-            <Plus size={18} strokeWidth={3} />
-            <span className="text-sm">New Report</span>
+        <div className="p-3 border-t border-border mt-auto">
+          <button onClick={handleSupport} className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-md transition-colors cursor-pointer">
+            <LifeBuoy size={16} />
+            <span className="text-sm">Help & Support</span>
           </button>
-          
-          <div className="mt-4 space-y-1">
-            <button onClick={handleSupport} className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-lg transition-all cursor-pointer group">
-              <LifeBuoy size={18} className="group-hover:text-blue-400 transition-colors" />
-              <span className="text-sm font-medium">Support</span>
-            </button>
-            <button onClick={() => setIsLogoutModalOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all cursor-pointer group">
-              <LogOut size={18} className="group-hover:text-destructive transition-colors" />
-              <span className="text-sm font-medium">Log Out</span>
-            </button>
-          </div>
+          <button onClick={() => setIsLogoutModalOpen(true)} className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950 hover:text-destructive rounded-md transition-colors cursor-pointer mt-0.5">
+            <LogOut size={16} />
+            <span className="text-sm">Sign Out</span>
+          </button>
         </div>
       </aside>
 
       {/* New Report Modal */}
-      <Modal isOpen={isReportModalOpen} onClose={() => !isSubmitting && setIsReportModalOpen(false)} title="Generate New ESG Report">
+      <Modal isOpen={isReportModalOpen} onClose={() => !isSubmitting && setIsReportModalOpen(false)} title="Create Data Entry">
         <form onSubmit={handleSubmitReport} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Report Title</label>
-            <input required type="text" placeholder="e.g. Q3 European Logistics Footprint" className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+            <label className="text-sm font-medium text-foreground">Entry Title</label>
+            <input required type="text" placeholder="e.g. Q3 European Logistics Footprint" className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
           </div>
           
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">ESG Pillar</label>
-            <select className="w-full bg-background border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-foreground">
+            <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:border-primary text-foreground">
               <option value="environmental">Environmental (Scope 1, 2, 3)</option>
               <option value="social">Social (Diversity, Training)</option>
               <option value="governance">Governance (Compliance, Audits)</option>
-              <option value="comprehensive">Comprehensive ESG</option>
+              <option value="comprehensive">Comprehensive</option>
             </select>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">Data File (Optional)</label>
-            <div className="w-full border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-white/[0.02]">
+            <div className="w-full border-2 border-dashed border-border hover:border-primary/50 transition-colors rounded-md p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-muted">
               <Plus className="text-muted-foreground" size={24} />
               <span className="text-sm text-muted-foreground">Click to upload CSV or Excel</span>
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3">
+          <div className="pt-4 flex justify-end gap-3 border-t border-border mt-6">
             <button type="button" onClick={() => setIsReportModalOpen(false)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
-            <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-lg shadow disabled:opacity-50 min-w-[120px]">
-              {isSubmitting ? "Generating..." : "Generate Report"}
+            <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md disabled:opacity-50 min-w-[120px] hover:bg-primary/90 transition-colors">
+              {isSubmitting ? "Creating..." : "Create Entry"}
             </button>
           </div>
         </form>
       </Modal>
 
       {/* Logout Confirmation Modal */}
-      <Modal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} title="Confirm Logout" maxWidth="max-w-sm">
-        <p className="text-sm text-muted-foreground mb-6">Are you sure you want to log out of EcoSphere? Any unsaved changes may be lost.</p>
-        <div className="flex justify-end gap-3">
-          <button onClick={() => setIsLogoutModalOpen(false)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-white/10 rounded-lg hover:bg-white/5">Cancel</button>
-          <button onClick={handleLogout} className="px-4 py-2 text-sm font-bold bg-destructive text-destructive-foreground rounded-lg shadow hover:bg-red-600 transition-colors">Log Out</button>
+      <Modal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} title="Confirm Sign Out" maxWidth="max-w-sm">
+        <p className="text-sm text-muted-foreground mb-6">Are you sure you want to sign out of the ERP? Any unsaved entries may be lost.</p>
+        <div className="flex justify-end gap-3 border-t border-border pt-4">
+          <button onClick={() => setIsLogoutModalOpen(false)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border border-border rounded-md hover:bg-muted">Cancel</button>
+          <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-red-600 transition-colors">Sign Out</button>
         </div>
       </Modal>
     </>

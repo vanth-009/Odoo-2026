@@ -20,47 +20,47 @@ export default function Topbar() {
 
   const handleProfileSettings = () => {
     setIsProfileOpen(false);
-    toast("Settings page not implemented yet.", "info");
+    toast("Settings module not implemented.", "info");
   };
 
   return (
-    <header className="w-full h-16 flex justify-between items-center px-6 sticky top-0 z-40 glass-panel border-b border-white/5">
+    <header className="w-full h-14 flex justify-between items-center px-4 sticky top-0 z-40 bg-card border-b border-border shadow-sm">
       <div className="flex items-center gap-4">
         <button className="md:hidden text-muted-foreground hover:text-foreground transition-colors">
-          <Menu size={24} />
+          <Menu size={20} />
         </button>
-        <div className="hidden md:flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
-          <Activity size={16} className="text-primary" />
-          <span className="text-sm font-medium text-muted-foreground">Reporting Period: <span className="text-foreground font-semibold text-gradient">FY24 Q3</span></span>
-          <div className="h-4 w-px bg-white/10 mx-1"></div>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        <div className="hidden md:flex items-center gap-3 bg-muted px-3 py-1 rounded text-sm border border-border">
+          <Activity size={14} className="text-primary" />
+          <span className="font-medium text-muted-foreground">Reporting Period: <span className="text-foreground font-semibold">FY24 Q3</span></span>
+          <div className="h-3 w-px bg-border mx-1"></div>
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">Live Sync</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Live Sync</span>
           </div>
         </div>
       </div>
       
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         {/* Search Bar */}
-        <div className={`hidden lg:flex items-center bg-black/40 border transition-all rounded-full px-4 py-1.5 w-72 ${isSearchFocused ? 'border-primary ring-1 ring-primary shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'border-white/10'}`}>
-          <Search size={16} className={isSearchFocused ? "text-primary" : "text-muted-foreground"} />
+        <div className={`hidden lg:flex items-center bg-background border transition-all rounded-md px-3 py-1.5 w-64 ${isSearchFocused ? 'border-primary ring-1 ring-primary' : 'border-border'}`}>
+          <Search size={14} className={isSearchFocused ? "text-primary" : "text-muted-foreground"} />
           <input 
             className="bg-transparent border-none focus:outline-none focus:ring-0 text-sm w-full font-medium ml-2 text-foreground placeholder:text-muted-foreground" 
-            placeholder="Search assets, metrics..." 
+            placeholder="Search records, entities..." 
             type="text"
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                toast("Search functionality ready for backend integration", "info");
+                toast("Search functionality ready for ERP integration", "info");
                 e.currentTarget.blur();
               }
             }}
           />
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-white/10 px-1.5 py-0.5 rounded font-mono">
+          <div className="flex items-center gap-0.5 text-[10px] text-muted-foreground bg-muted px-1 rounded border border-border font-mono ml-1">
             <span>⌘</span><span>K</span>
           </div>
         </div>
@@ -69,28 +69,28 @@ export default function Topbar() {
         {mounted && (
           <button 
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-white/5"
+            className="p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
             title="Toggle theme"
           >
-            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         )}
         
         {/* Notifications */}
-        <button onClick={handleNotifications} className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-white/5">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full border-2 border-[var(--bg-color)]"></span>
+        <button onClick={handleNotifications} className="relative p-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">
+          <Bell size={18} />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full border border-card"></span>
         </button>
 
         {/* Profile Dropdown */}
-        <div className="relative flex items-center gap-3 pl-4 border-l border-white/10">
+        <div className="relative flex items-center gap-2 pl-2 md:pl-4 border-l border-border">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-foreground leading-none">Eleanor P.</p>
-            <p className="text-xs text-muted-foreground mt-1">CSO</p>
+            <p className="text-sm font-semibold text-foreground leading-none">E. Penhaligon</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">CSO</p>
           </div>
-          <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-primary/30 p-0.5 hover:ring-primary transition-all">
+          <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="w-8 h-8 rounded-md overflow-hidden border border-border hover:border-primary transition-all ml-1">
             <img 
-              className="w-full h-full rounded-full object-cover" 
+              className="w-full h-full object-cover" 
               alt="Profile"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzuNyqZ74PEEL7xnhaRhCluKz3giEkH57bczPwLjjREb8wd3ewBYesthwe54Z-_Z8w8_vDPqzX-ugyYwFO_vKOSCRCWmwS4yQ5uhPBaf5B17tEp084TTrEWUc-Dn7GWH_851iixBsClqftMiGgo9_GQYSgaghd5xzoTaJBcMcCAS0Mj6osE0fWICcN2QP7CkZjke4ORWOVGmeUOOZ5KrqktFeyZkcJaLRpPJgRFb33pcMFTu_eNUhfow"
             />
@@ -100,15 +100,15 @@ export default function Topbar() {
           {isProfileOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
-              <div className="absolute right-0 top-12 mt-2 w-48 rounded-xl glass-panel bg-background/95 border border-white/10 shadow-2xl py-1 z-50 animate-fade-in-up">
-                <div className="px-4 py-2 border-b border-white/5 mb-1">
+              <div className="absolute right-0 top-10 mt-1 w-48 rounded-md bg-card border border-border shadow-lg py-1 z-50">
+                <div className="px-4 py-2 border-b border-border mb-1">
                   <p className="text-sm font-medium text-foreground">Eleanor Penhaligon</p>
-                  <p className="text-xs text-muted-foreground">eleanor@ecosphere.com</p>
+                  <p className="text-xs text-muted-foreground">eleanor@erp.local</p>
                 </div>
-                <button onClick={handleProfileSettings} className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center gap-2">
+                <button onClick={handleProfileSettings} className="w-full text-left px-4 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted flex items-center gap-2">
                   <User size={14} /> Profile
                 </button>
-                <button onClick={handleProfileSettings} className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center gap-2">
+                <button onClick={handleProfileSettings} className="w-full text-left px-4 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted flex items-center gap-2">
                   <Settings size={14} /> Preferences
                 </button>
               </div>

@@ -33,22 +33,22 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = "ma
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/50 animate-fade-in"
         onClick={onClose}
       />
       
       {/* Modal Content */}
-      <div className={`relative w-full ${maxWidth} glass-panel bg-background/95 rounded-2xl shadow-2xl animate-fade-in-up border border-white/10 overflow-hidden flex flex-col max-h-[90vh]`}>
-        <div className="flex items-center justify-between p-5 border-b border-white/5">
-          <h2 className="text-xl font-bold text-foreground">{title}</h2>
+      <div className={`relative w-full ${maxWidth} bg-card rounded shadow-xl animate-fade-in-up border border-border overflow-hidden flex flex-col max-h-[90vh]`}>
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
+          <h2 className="text-lg font-bold text-foreground">{title}</h2>
           <button 
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto">
+        <div className="p-5 overflow-y-auto">
           {children}
         </div>
       </div>
