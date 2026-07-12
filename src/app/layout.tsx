@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Sidebar from "@/components/Sidebar";
+import Topbar from "@/components/Topbar";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/Toast";
 
 const inter = Inter({
-  variable: "--font-inter",
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "EcoSphere: ESG Management Platform",
-  description: "Monitor carbon emissions, promote employee well-being, and maintain governance compliance.",
+  title: "EcoSphere | Premium ESG Dashboard",
+  description: "Monitor carbon emissions, promote employee well-being, and maintain governance compliance with real-time insights.",
 };
-
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
 
 export default function RootLayout({
   children,
@@ -21,15 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} dark antialiased`}>
-      <body className="font-sans min-h-screen bg-slate-950 text-slate-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex flex-col ml-64">
-          <Topbar />
-          <main className="flex-1 p-8 overflow-y-auto">
-            {children}
-          </main>
-        </div>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} font-sans`}>
+      <body className="flex min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-primary/30">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <ToastProvider>
+            <Sidebar />
+            <main className="flex-1 md:ml-64 min-h-screen flex flex-col relative z-0">
+              <Topbar />
+              <div className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full animate-fade-in">
+                {children}
+              </div>
+            </main>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
