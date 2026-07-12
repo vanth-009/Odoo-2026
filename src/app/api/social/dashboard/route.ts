@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/dashboard
+// Return comprehensive social module dashboard data
 export async function GET(_request: NextRequest) {
   try {
+    // --- Total Activities + Breakdown by Status ---
     const [
       totalActivities,
       activitiesByStatus,
@@ -47,6 +48,7 @@ export async function GET(_request: NextRequest) {
     const totalVolunteerHours = volunteerHoursResult._sum.hoursContributed ?? 0;
     const totalXpDistributed = xpDistributedResult._sum.pointsEarned ?? 0;
 
+    // --- Recent Activities (last 5) ---
     const recentActivities = await prisma.csrActivity.findMany({
       orderBy: { createdAt: 'desc' },
       take: 5,
@@ -58,6 +60,7 @@ export async function GET(_request: NextRequest) {
       },
     });
 
+    // --- Top Participants (top 5 by total pointsEarned) ---
     const topParticipantsRaw = await prisma.employeeParticipation.groupBy({
       by: ['employeeId'],
       _sum: { pointsEarned: true },
@@ -65,28 +68,29 @@ export async function GET(_request: NextRequest) {
       take: 5,
     });
 
-    const topParticipantIds = topParticipantsRaw.map((p) => p.employeeId);
+    const topParticipantIds = topParticipantsRaw.map((p: any) => p.employeeId);
     const topEmployees = await prisma.employee.findMany({
       where: { id: { in: topParticipantIds } },
       select: {
         id: true,
         firstName: true,
         lastName: true,
-        department: { select: { name: true } },
+        department: true,
       },
     });
 
-    const topParticipants = topParticipantsRaw.map((p) => {
-      const emp = topEmployees.find((e) => e.id === p.employeeId);
+    const topParticipants = topParticipantsRaw.map((p: any) => {
+      const emp = topEmployees.find((e: any) => e.id === p.employeeId);
       return {
         employeeId: p.employeeId,
         firstName: emp?.firstName ?? 'Unknown',
         lastName: emp?.lastName ?? '',
-        department: emp?.department?.name ?? 'Unknown',
+        department: emp?.department ?? 'Unknown',
         totalPoints: p._sum.pointsEarned ?? 0,
       };
     });
 
+    // --- Monthly Trend (last 6 months participation counts) ---
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     sixMonthsAgo.setDate(1);
@@ -102,6 +106,7 @@ export async function GET(_request: NextRequest) {
     });
 
     const monthlyTrendMap: Record<string, number> = {};
+    // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/training
+// List training programs with completion stats
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // Pagination
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '10', 10)));
     const skip = (page - 1) * limit;
@@ -30,6 +31,7 @@ export async function GET(request: NextRequest) {
       prisma.trainingProgram.count(),
     ]);
 
+    // Compute stats for each program
     const programsWithStats = programs.map((program) => {
       const totalEnrolled = program.completions.length;
       const totalCompleted = program.completions.filter(
@@ -40,6 +42,7 @@ export async function GET(request: NextRequest) {
           ? parseFloat(((totalCompleted / totalEnrolled) * 100).toFixed(2))
           : 0;
 
+      // Remove raw completions from response
       const { completions: _completions, ...programData } = program;
 
       return {

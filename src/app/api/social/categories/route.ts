@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/categories
+// List active CSR categories
 export async function GET(_request: NextRequest) {
   try {
     const categories = await prisma.csrCategory.findMany({
@@ -25,11 +25,14 @@ export async function GET(_request: NextRequest) {
   }
 }
 
+// POST /api/social/categories
+// Create a new CSR category
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const errors: string[] = [];
 
+    // Validate name
     if (!body.name || typeof body.name !== 'string' || body.name.trim().length < 2) {
       errors.push('Name is required and must be at least 2 characters long.');
     }
@@ -43,8 +46,9 @@ export async function POST(request: NextRequest) {
 
     const trimmedName = body.name.trim();
 
+    // Check uniqueness
     const existing = await prisma.csrCategory.findFirst({
-      where: { name: trimmedName },
+      where: { name: { equals: trimmedName } },
     });
 
     if (existing) {

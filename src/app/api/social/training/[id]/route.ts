@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+// GET /api/social/training/[id]
+// Get a single training program with completions list (include employee details)
 export async function GET(
   request: NextRequest,
   context: RouteContext
@@ -48,6 +50,7 @@ export async function GET(
       );
     }
 
+    // Compute stats
     const totalEnrolled = program.completions.length;
     const totalCompleted = program.completions.filter(
       (c) => c.status === 'COMPLETED'

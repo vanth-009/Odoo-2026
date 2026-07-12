@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/csr-activities
+// List activities with pagination, filters (status, categoryId, search)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // Pagination
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '10', 10)));
     const skip = (page - 1) * limit;
 
+    // Filters
     const status = searchParams.get('status');
     const categoryId = searchParams.get('categoryId');
     const search = searchParams.get('search');
 
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
 
     if (status) {
       where.status = status;
@@ -34,9 +36,9 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { title: { contains: search } },
-        { description: { contains: search } },
-        { organizerName: { contains: search } },
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { organizerName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -74,11 +76,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST /api/social/csr-activities
+// Create a new CSR activity
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const errors: string[] = [];
 
+    // Required field validations
     if (!body.title || typeof body.title !== 'string' || body.title.trim().length < 3) {
       errors.push('Title is required and must be at least 3 characters long.');
     }
@@ -87,7 +92,7 @@ export async function POST(request: NextRequest) {
       errors.push('Description is required and must be at least 10 characters long.');
     }
 
-    if (body.categoryId === undefined || body.categoryId === null || String(body.categoryId).trim() === '') {
+    if (body.categoryId === undefined || body.categoryId === null) {
       errors.push('categoryId is required.');
     } else {
       const parsedCategoryId = Number(body.categoryId);
@@ -122,6 +127,7 @@ export async function POST(request: NextRequest) {
       errors.push('organizerName is required.');
     }
 
+    // Optional field validations
     if (body.xpReward !== undefined && body.xpReward !== null) {
       const xp = Number(body.xpReward);
       if (isNaN(xp) || !Number.isInteger(xp) || xp <= 0) {
@@ -143,6 +149,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify category exists
     const category = await prisma.csrCategory.findUnique({
       where: { id: Number(body.categoryId) },
     });
@@ -162,11 +169,11 @@ export async function POST(request: NextRequest) {
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
         organizerName: body.organizerName.trim(),
-        xpReward: body.xpReward !== undefined ? Number(body.xpReward) : 20,
-        maxParticipants: body.maxParticipants !== undefined ? Number(body.maxParticipants) : null,
-        location: body.location ? body.location.trim() : null,
-        status: body.status || 'UPCOMING',
-        imageUrl: body.imageUrl ? body.imageUrl.trim() : null,
+        ...(body.xpReward !== undefined && { xpReward: Number(body.xpReward) }),
+        ...(body.maxParticipants !== undefined && { maxParticipants: Number(body.maxParticipants) }),
+        ...(body.location && { location: body.location.trim() }),
+        ...(body.status && { status: body.status }),
+        ...(body.imageUrl && { imageUrl: body.imageUrl.trim() }),
       },
       include: {
         category: true,

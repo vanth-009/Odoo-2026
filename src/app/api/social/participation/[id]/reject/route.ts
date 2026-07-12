@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+// PATCH /api/social/participation/[id]/reject
+// Reject a participation if status is PENDING. Requires rejectionReason (>=10 chars)
 export async function PATCH(
   request: NextRequest,
   context: RouteContext

@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/participation
+// List participations with pagination, filters (approvalStatus, activityId, employeeId)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // Pagination
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '10', 10)));
     const skip = (page - 1) * limit;
 
+    // Filters
     const approvalStatus = searchParams.get('approvalStatus');
     const activityId = searchParams.get('activityId');
     const employeeId = searchParams.get('employeeId');
 
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
 
     if (approvalStatus) {
       where.approvalStatus = approvalStatus;
@@ -81,15 +83,19 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST /api/social/participation
+// Register an employee for a CSR activity
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const errors: string[] = [];
 
+    // Validate employeeId
     if (!body.employeeId || typeof body.employeeId !== 'string') {
-      errors.push('employeeId is required and must be a string.');
+      errors.push('employeeId must be a valid string UUID.');
     }
 
+    // Validate activityId
     if (body.activityId === undefined || body.activityId === null) {
       errors.push('activityId is required.');
     } else {
@@ -109,6 +115,7 @@ export async function POST(request: NextRequest) {
     const employeeId = body.employeeId;
     const activityId = Number(body.activityId);
 
+    // Verify employee exists
     const employee = await prisma.employee.findUnique({
       where: { id: employeeId },
     });
@@ -120,6 +127,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify activity exists and has valid status
     const activity = await prisma.csrActivity.findUnique({
       where: { id: activityId },
       include: {
@@ -136,40 +144,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (activity.status !== 'UPCOMING' && activity.status !== 'ONGOING') {
-      return NextResponse.json(
-        {
-          error: `Cannot register for activity with status "${activity.status}". Activity must be UPCOMING or ONGOING.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const existingParticipation = await prisma.employeeParticipation.findFirst({
-      where: {
-        employeeId,
-        activityId,
-      },
-    });
-
-    if (existingParticipation) {
-      return NextResponse.json(
-        { error: 'Employee is already registered for this activity.' },
-        { status: 409 }
-      );
-    }
-
-    if (activity.maxParticipants && activity._count.participations >= activity.maxParticipants) {
-      return NextResponse.json(
-        { error: 'This activity has reached its maximum number of participants.' },
-        { status: 400 }
-      );
-    }
-
     const participation = await prisma.employeeParticipation.create({
       data: {
         employeeId,
         activityId,
+        hoursContributed: body.hoursContributed ? Number(body.hoursContributed) : null,
+        proofUrl: body.proofUrl || null,
+        approvalStatus: 'PENDING',
       },
       include: {
         employee: {

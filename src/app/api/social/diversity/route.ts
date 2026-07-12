@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export const dynamic = 'force-dynamic';
-
+// GET /api/social/diversity
+// Compute and return diversity metrics from employee data
 export async function GET(_request: NextRequest) {
   try {
     const employees = await prisma.employee.findMany({
@@ -10,9 +10,7 @@ export async function GET(_request: NextRequest) {
         id: true,
         gender: true,
         dateOfBirth: true,
-        department: {
-          select: { name: true }
-        },
+        department: true,
         ethnicity: true,
       },
     });
@@ -32,7 +30,7 @@ export async function GET(_request: NextRequest) {
       });
     }
 
-    // Gender Distribution
+    // --- Gender Distribution ---
     const genderCounts: Record<string, number> = {};
     for (const emp of employees) {
       const gender = emp.gender || 'Unknown';
@@ -44,7 +42,7 @@ export async function GET(_request: NextRequest) {
       percentage: parseFloat(((count / totalEmployees) * 100).toFixed(2)),
     }));
 
-    // Age Distribution
+    // --- Age Distribution ---
     const ageBuckets: Record<string, number> = {
       '18-25': 0,
       '26-35': 0,
@@ -79,10 +77,10 @@ export async function GET(_request: NextRequest) {
         : 0,
     }));
 
-    // Department Distribution
+    // --- Department Distribution ---
     const departmentCounts: Record<string, number> = {};
     for (const emp of employees) {
-      const dept = emp.department?.name || 'Unknown';
+      const dept = emp.department ? emp.department.name : 'Unknown';
       departmentCounts[dept] = (departmentCounts[dept] || 0) + 1;
     }
     const departmentDistribution = Object.entries(departmentCounts).map(([department, count]) => ({
@@ -91,7 +89,7 @@ export async function GET(_request: NextRequest) {
       percentage: parseFloat(((count / totalEmployees) * 100).toFixed(2)),
     }));
 
-    // Ethnicity Distribution
+    // --- Ethnicity Distribution ---
     const ethnicityCounts: Record<string, number> = {};
     for (const emp of employees) {
       const ethnicity = emp.ethnicity || 'Unknown';
@@ -103,23 +101,29 @@ export async function GET(_request: NextRequest) {
       percentage: parseFloat(((count / totalEmployees) * 100).toFixed(2)),
     }));
 
-    // Diversity Index (Shannon Index)
-    const allDistributions = [genderDistribution, ethnicityDistribution];
-    let shannonSum = 0;
-    let categoriesCount = 0;
-
-    for (const dist of allDistributions) {
-      for (const item of dist) {
-        const pi = item.count / totalEmployees;
-        if (pi > 0) {
-          shannonSum += -pi * Math.log(pi);
-          categoriesCount++;
-        }
-      }
+    // --- Diversity Index (Shannon Index) ---
+    // H = -Σ(pi * ln(pi)) where pi is the proportion of each group
+    
+    // Gender Evenness
+    let genderShannon = 0;
+    let genderCats = 0;
+    for (const item of genderDistribution) {
+      const pi = item.count / totalEmployees;
+      if (pi > 0) { genderShannon += -pi * Math.log(pi); genderCats++; }
     }
+    const genderEvenness = genderCats > 1 ? genderShannon / Math.log(genderCats) : 1;
 
-    const maxEntropy = categoriesCount > 1 ? Math.log(categoriesCount) : 1;
-    const diversityIndex = parseFloat((shannonSum / maxEntropy).toFixed(4));
+    // Ethnicity Evenness
+    let ethShannon = 0;
+    let ethCats = 0;
+    for (const item of ethnicityDistribution) {
+      const pi = item.count / totalEmployees;
+      if (pi > 0) { ethShannon += -pi * Math.log(pi); ethCats++; }
+    }
+    const ethEvenness = ethCats > 1 ? ethShannon / Math.log(ethCats) : 1;
+
+    // Average the evenness scores
+    const diversityIndex = parseFloat(((genderEvenness + ethEvenness) / 2).toFixed(4));
 
     return NextResponse.json({
       data: {
