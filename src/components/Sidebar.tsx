@@ -63,7 +63,7 @@ export default function Sidebar() {
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           <p className="px-3 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest mb-3 mt-2">Core Modules</p>
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const isActive = pathname ? (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))) : false;
             return (
               <Link
                 key={item.name}
