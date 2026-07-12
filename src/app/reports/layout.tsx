@@ -8,7 +8,7 @@ export default function ReportsLayout({
   return (
     <div className="flex h-screen bg-[#09090b]">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto pl-72 p-8">
+      <main className="flex-1 overflow-y-auto ml-72 p-8 min-w-0">
         {children}
       </main>
     </div>
