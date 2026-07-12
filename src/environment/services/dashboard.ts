@@ -199,18 +199,80 @@ export async function getDashboardMetrics(): Promise<DashboardData> {
       timestamp: tx.timestamp,
       status: tx.status
     })),
-    goals: allGoals.map(g => ({
-      id: g.id,
-      name: g.name,
-      department: g.department.name,
-      owner: g.owner,
-      progress: g.progress,
-      target: g.target,
-      remaining: g.remaining,
-      deadline: g.deadline,
-      status: g.status as 'On Track' | 'Behind Schedule' | 'Completed',
-      risk: g.risk as 'Low' | 'Medium' | 'High' | 'None'
-    })),
+    goals: await Promise.all(
+      allGoals.map(async (g) => {
+        // Find category filter
+        let txFilter = {};
+        switch (g.category) {
+          case 'Reduce Fleet Emissions':
+            txFilter = { source: 'Fleet' };
+            break;
+          case 'Reduce Electricity Consumption':
+          case 'Renewable Energy Adoption':
+            txFilter = { source: 'Electricity' };
+            break;
+          case 'Reduce Manufacturing Emissions':
+            txFilter = { source: 'Manufacturing' };
+            break;
+          case 'Packaging Waste Reduction':
+            txFilter = { source: 'Waste Management' };
+            break;
+        }
+
+        const aggregate = await prisma.carbonTransaction.aggregate({
+          where: {
+            departmentId: g.departmentId,
+            ...txFilter,
+            timestamp: {
+              gte: g.startDate,
+              lte: g.targetDate
+            },
+            status: {
+              not: 'Archived'
+            }
+          },
+          _sum: {
+            carbon: true
+          }
+        });
+
+        const currentCarbon = aggregate._sum.carbon || 0;
+        const targetReduction = Math.max(0.1, g.baselineCarbon - g.targetCarbon);
+        const carbonSaved = Math.max(0, g.baselineCarbon - currentCarbon);
+        const remainingReduction = Math.max(0, currentCarbon - g.targetCarbon);
+        const progressPercent = parseFloat(
+          Math.min(100, Math.max(0, (carbonSaved / targetReduction) * 100)).toFixed(1)
+        );
+
+        let calculatedStatus: 'On Track' | 'Behind Schedule' | 'Completed' = 'On Track';
+        if (currentCarbon <= g.targetCarbon) {
+          calculatedStatus = 'Completed';
+        } else if (now > g.targetDate) {
+          calculatedStatus = 'Behind Schedule';
+        } else {
+          const totalDuration = g.targetDate.getTime() - g.startDate.getTime();
+          const elapsed = now.getTime() - g.startDate.getTime();
+          const elapsedPercent = totalDuration > 0 ? (elapsed / totalDuration) * 100 : 0;
+          if (progressPercent < elapsedPercent * 0.85) {
+            calculatedStatus = 'Behind Schedule';
+          }
+        }
+
+        return {
+          id: g.id,
+          name: g.name,
+          department: g.department.name,
+          owner: g.owner,
+          progress: progressPercent,
+          target: g.targetCarbon,
+          remaining: remainingReduction,
+          deadline: g.targetDate,
+          status: calculatedStatus,
+          risk: (g.priority === 'High' ? 'High' : g.priority === 'Medium' ? 'Medium' : 'Low') as 'Low' | 'Medium' | 'High' | 'None'
+        };
+      })
+    ),
     alerts
   };
 }
+

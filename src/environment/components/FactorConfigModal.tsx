@@ -117,10 +117,10 @@ export default function FactorConfigModal({ isOpen, onClose, onFactorUpdated }: 
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-zinc-200">{factor.name}</span>
                     <span className="px-1.5 py-0.5 rounded text-[8px] font-bold border text-zinc-400 border-zinc-800 bg-zinc-900 uppercase">
-                      {factor.type}
+                      {factor.category}
                     </span>
                   </div>
-                  <span className="text-[10px] text-zinc-500 font-mono">key: {factor.key}</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">{factor.subcategory || 'Generic'}</span>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
