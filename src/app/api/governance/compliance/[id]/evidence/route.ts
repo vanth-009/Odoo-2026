@@ -56,7 +56,7 @@ export async function POST(
       const serializedType = JSON.stringify({
         title,
         description,
-        fileType: 'pdf'
+        fileType: body.fileType || 'pdf'
       });
 
       const ev = await tx.evidence.create({

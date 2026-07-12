@@ -21,6 +21,7 @@ export default function SocialLayout({
   const pathname = usePathname();
 
   const isActive = (href: string) => {
+    if (!pathname) return false;
     if (href === "/social") return pathname === "/social";
     return pathname.startsWith(href);
   };

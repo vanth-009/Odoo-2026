@@ -18,10 +18,12 @@ export async function GET(_request: NextRequest) {
       const mappedEvidence = issue.evidences.map(e => {
         let title = 'Evidence Document';
         let description = '';
+        let fileType = 'pdf';
         try {
           const parsed = JSON.parse(e.fileType);
           title = parsed.title || title;
           description = parsed.description || description;
+          fileType = parsed.fileType || fileType;
         } catch {
           title = e.fileType || title;
         }
@@ -30,6 +32,7 @@ export async function GET(_request: NextRequest) {
           title,
           description,
           fileUrl: e.fileUrl,
+          fileType,
           uploadedAt: e.createdAt.toISOString(),
           uploadedBy: e.uploadedBy,
         };
