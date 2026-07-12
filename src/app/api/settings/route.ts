@@ -14,7 +14,12 @@ function readSettings() {
     console.error("Error reading settings.json", err);
   }
   // Default fallback values
-  return { requireProof: false, badgeAutoAward: false, autoFlagOverdue: true };
+  return { 
+    requireProof: false, 
+    badgeAutoAward: false, 
+    autoFlagOverdue: true,
+    esgWeights: { env: 40, soc: 30, gov: 30 }
+  };
 }
 
 function writeSettings(settings: any) {
