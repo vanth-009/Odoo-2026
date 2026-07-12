@@ -14,6 +14,8 @@ model Department {
   score           Int                 @default(100)
   status          String              @default("On Track")
   trend           String              @default("down")
+  manager         String              @default("Unassigned")
+  employeeCount   Int                 @default(10)
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
   transactions    CarbonTransaction[]
@@ -21,42 +23,96 @@ model Department {
 }
 
 model EmissionFactor {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  name      String
-  value     Float
-  unit      String
-  type      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String              @id @default(uuid())
+  name            String              @unique
+  category        String
+  subcategory     String?
+  unit            String
+  value           Float               // CO2 Factor coefficient
+  source          String
+  version         String              @default("1.0.0")
+  effectiveDate   DateTime            @default(now())
+  description     String?             @db.Text
+  status          String              @default("ACTIVE") // ACTIVE, ARCHIVED
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  transactions    CarbonTransaction[]
+  productProfiles ProductESGProfile[]
+}
+
+model ProductESGProfile {
+  id                         String              @id @default(uuid())
+  name                       String
+  code                       String              @unique // Product Code / SKU
+  category                   String
+  supplier                   String
+  packagingType              String
+  recyclablePercent          Float               // Between 0 and 100
+  manufacturingCountry       String
+  lifecycleStage             String
+  hazardClass                String?
+  carbonCategory             String?
+  preferredEmissionFactorId  String?
+  preferredEmissionFactor    EmissionFactor?     @relation(fields: [preferredEmissionFactorId], references: [id], onDelete: SetNull)
+  esgRating                  String              // e.g., AAA, AA, A, BBB, BB, B, CCC
+  description                String?             @db.Text
+  status                     String              @default("ACTIVE") // ACTIVE, ARCHIVED
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  transactions               CarbonTransaction[]
 }
 
 model CarbonTransaction {
-  id           String     @id @default(uuid())
-  txId         String     @unique
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  operation    String
-  product      String
-  carbon       Float
-  timestamp    DateTime   @default(now())
-  status       String     @default("Approved")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id               String             @id @default(uuid())
+  txId             String             @unique // Transaction Number
+  timestamp        DateTime           @default(now()) // Transaction Date
+  departmentId     String
+  department       Department         @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  source           String             // Purchase, Manufacturing, Fleet, Electricity, Business Travel, Waste Management, Manual Entry
+  productId        String?
+  productProfile   ProductESGProfile? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product          String             // For backward compatibility / name display
+  operation        String             // Operational activity description
+  emissionFactorId String?
+  emissionFactor   EmissionFactor?    @relation(fields: [emissionFactorId], references: [id], onDelete: SetNull)
+  quantity         Float              @default(1.0)
+  unit             String             // e.g. liters, kWh, kg
+  factorValue      Float              // preserved factor value at time of calculation
+  carbon           Float              // Calculated carbon (quantity * factorValue)
+  formula          String             // formula trace e.g. "Quantity (150) * Factor (2.68)"
+  createdBy        String             @default("System")
+  status           String             @default("Verified") // Draft, Calculated, Verified, Archived
+  notes            String?            @db.Text
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 }
 
 model SustainabilityGoal {
-  id           String     @id @default(uuid())
-  name         String
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  owner        String
-  progress     Float      @default(0)
-  target       Float
-  remaining    Float
-  deadline     DateTime
-  status       String     @default("On Track")
-  risk         String     @default("Low")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id             String     @id @default(uuid())
+  name           String
+  description    String?    @db.Text
+  departmentId   String
+  department     Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  category       String     // e.g. Reduce Fleet Emissions, Reduce Electricity Consumption, Reduce Manufacturing Emissions, Packaging Waste Reduction, Water Conservation, Renewable Energy Adoption
+  baselineCarbon Float
+  targetCarbon   Float
+  startDate      DateTime   @default(now())
+  targetDate     DateTime
+  owner          String
+  priority       String     @default("Medium") // Low, Medium, High
+  status         String     @default("Active") // Draft, Active, On Track, At Risk, Completed, Archived
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
+
+model EnvironmentalReport {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  generatedBy String   @default("System")
+  generatedAt DateTime @default(now())
+  filters     String   @db.Text
+  format      String
+  status      String   @default("Ready")
+}
+

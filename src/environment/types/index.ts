@@ -34,11 +34,39 @@ export interface SustainabilityGoal {
 
 export interface EmissionFactor {
   id: string;
-  key: string;
   name: string;
-  value: number;
+  category: string;
+  subcategory?: string | null;
   unit: string;
-  type: string;
+  value: number; // CO2 factor value
+  source: string;
+  version: string;
+  effectiveDate: string | Date;
+  description?: string | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+export interface ProductESGProfile {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  supplier: string;
+  packagingType: string;
+  recyclablePercent: number;
+  manufacturingCountry: string;
+  lifecycleStage: string;
+  hazardClass?: string | null;
+  carbonCategory?: string | null;
+  preferredEmissionFactorId?: string | null;
+  preferredEmissionFactor?: EmissionFactor | null;
+  esgRating: string;
+  description?: string | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface DashboardKPIs {
