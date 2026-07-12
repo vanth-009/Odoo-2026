@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/Toast";
+import LiveTicker from "@/components/LiveTicker";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -32,12 +33,13 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <ToastProvider>
             <Sidebar />
-            <main className="flex-1 md:ml-72 min-h-screen flex flex-col relative z-0">
+            <main className="flex-1 md:ml-72 min-h-screen flex flex-col relative z-0 pb-8">
               <Topbar />
               <div className="flex-1 p-6 md:p-8 max-w-[1600px] w-full animate-fade-in">
                 {children}
               </div>
             </main>
+            <LiveTicker />
           </ToastProvider>
         </ThemeProvider>
       </body>
