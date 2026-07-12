@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   Shield, FileText, Calendar, AlertTriangle, Users2, Landmark, 
-  Settings2, HelpCircle, FileSpreadsheet, LayoutDashboard
+  Settings2, HelpCircle, FileSpreadsheet, LayoutDashboard, Trophy
 } from "lucide-react";
 
 const navItems = [
@@ -102,6 +102,14 @@ export default function GovernanceLayout({
             >
               <Shield className="w-4 h-4 text-emerald-400" />
               Governance Console
+            </Link>
+
+            <Link 
+              href="/gamification" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-all duration-200 group hover:bg-zinc-900/40 hover:text-[#f4f4f5]"
+            >
+              <Trophy className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Gamification Hub
             </Link>
           </nav>
         </div>

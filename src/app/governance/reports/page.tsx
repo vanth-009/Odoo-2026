@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   PieChart, FileText, UserCheck, FileCheck, Shield, Users, 
-  Settings2, Download, FileSpreadsheet, ArrowRight, Play, Loader2
+  Settings2, Download, FileSpreadsheet, ArrowRight, Play, Loader2,
+  Calendar, Award, Database, RefreshCw, X, Sparkles, Globe
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-type ReportType = 'governance-summary' | 'policy' | 'acknowledgement' | 'audit' | 'compliance' | 'employee-governance' | 'custom-builder';
+type ReportType = 'environmental' | 'social' | 'governance' | 'summary' | 'custom-builder';
 
 interface ReportCategoryInfo {
   key: ReportType;
@@ -17,338 +19,343 @@ interface ReportCategoryInfo {
 }
 
 const REPORT_CATEGORIES_LIST: ReportCategoryInfo[] = [
-  { key: 'governance-summary', title: 'Governance Summary', description: 'Overview of department compliance, policies, and active audits.', icon: PieChart },
-  { key: 'policy', title: 'Policy Report', description: 'Lists all organizational governance, social, and environmental policies.', icon: FileText },
-  { key: 'acknowledgement', title: 'Policy Acknowledgement', description: 'Tracks employee-wise read receipts and sign-offs for active policies.', icon: UserCheck },
-  { key: 'audit', title: 'Audit Report', description: 'Details scheduled compliance audits, scores, and target completion dates.', icon: FileCheck },
-  { key: 'compliance', title: 'Compliance Issue Report', description: 'Registers active governance compliance issues, severities, and statuses.', icon: Shield },
-  { key: 'employee-governance', title: 'Employee Governance Report', description: 'Monitors compliance records, open issues, and policies per employee.', icon: Users },
-  { key: 'custom-builder', title: 'Custom Report Builder', description: 'Build customized compliance worksheets with specific parameters.', icon: Settings2 },
+  { key: 'environmental', title: 'Environmental Report', description: 'Lists carbon calculation logs, factors, and product footprints.', icon: Globe },
+  { key: 'social', title: 'Social Report', description: 'Consolidates CSR activities, hours, and participation indicators.', icon: Users },
+  { key: 'governance', title: 'Governance Report', description: 'Details corporate policy signs, scheduled audits, and compliance severity issues.', icon: Shield },
+  { key: 'summary', title: 'ESG Summary Report', description: 'Unified overview combining indicators across all organizational business units.', icon: PieChart },
+  { key: 'custom-builder', title: 'Custom Report Builder', description: 'Assemble customized ESG worksheets with specific parameters.', icon: Settings2 },
 ];
 
 export default function GovernanceReportsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-96 space-y-4">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <span className="text-sm text-zinc-400 font-medium">Preparing Consolidated Reports Hub...</span>
+      </div>
+    }>
+      <ReportsPageContent />
+    </Suspense>
+  );
+}
+
+function ReportsPageContent() {
+  const searchParams = useSearchParams();
   const [activeReport, setActiveReport] = useState<ReportType | null>(null);
-
-  // Data states loaded from database
-  const [policies, setPolicies] = useState<any[]>([]);
-  const [audits, setAudits] = useState<any[]>([]);
-  const [complianceIssues, setComplianceIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Core filter states (Required at the top of every report)
-  const [department, setDepartment] = useState('all');
-  const [employee, setEmployee] = useState('all');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [status, setStatus] = useState('all');
-
-  // Custom Report Builder filter states
-  const [builderModule, setBuilderModule] = useState('all');
-  const [builderPolicy, setBuilderPolicy] = useState('all');
-  const [builderAudit, setBuilderAudit] = useState('all');
-  const [builderIssue, setBuilderIssue] = useState('all');
-  const [builderSeverity, setBuilderSeverity] = useState('all');
-  const [customReportRows, setCustomReportRows] = useState<any[]>([]);
-  const [builderGenerated, setBuilderGenerated] = useState(false);
-
-  // Search input inside report tables
+  const [isExporting, setIsExporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch real records from Prisma API endpoints
-  const fetchDatabaseData = async () => {
+  // 1. Dynamic Filters Lists from Database
+  const [filterData, setFilterData] = useState<{
+    employees: { id: string; name: string }[];
+    departments: { id: string; name: string }[];
+    challenges: { id: string; title: string }[];
+  }>({ employees: [], departments: [], challenges: [] });
+
+  // 2. Dynamic Datasets from Core Modules
+  const [envTransactions, setEnvTransactions] = useState<any[]>([]);
+  const [socialActivities, setSocialActivities] = useState<any[]>([]);
+  const [govPolicies, setGovPolicies] = useState<any[]>([]);
+  const [govAudits, setGovAudits] = useState<any[]>([]);
+  const [govCompliance, setGovCompliance] = useState<any[]>([]);
+  const [gameXP, setGameXP] = useState<any[]>([]);
+
+  // 3. Consolidated Unified Filters (Required for each report)
+  const [filterDept, setFilterDept] = useState('all');
+  const [filterEmp, setFilterEmp] = useState('all');
+  const [filterFromDate, setFilterFromDate] = useState('');
+  const [filterToDate, setFilterToDate] = useState('');
+  const [filterModule, setFilterModule] = useState('all');
+  const [filterChallenge, setFilterChallenge] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  // Read URL search params to automatically switch active report tabs
+  useEffect(() => {
+    if (!searchParams) return;
+    const initialModule = searchParams.get('module');
+    if (initialModule) {
+      if (initialModule === 'Environmental') {
+        setActiveReport('environmental');
+      } else if (initialModule === 'Social') {
+        setActiveReport('social');
+      } else if (initialModule === 'Governance') {
+        setActiveReport('governance');
+      } else if (initialModule === 'Gamification') {
+        setActiveReport('custom-builder');
+        setFilterModule('Gamification');
+      }
+    }
+  }, [searchParams]);
+
+  // Load filter selectors dynamically
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [xpRes, challengesRes] = await Promise.all([
+          fetch('/api/gamification/xp').then(r => r.ok ? r.json() : { filterOptions: { employees: [], departments: [] } }),
+          fetch('/api/gamification/challenges').then(r => r.ok ? r.json() : { data: [] })
+        ]);
+
+        setFilterData({
+          employees: xpRes.filterOptions?.employees || [],
+          departments: xpRes.filterOptions?.departments || [],
+          challenges: (challengesRes.data || []).map((c: any) => ({ id: c.id, title: c.title }))
+        });
+      } catch (err) {
+        console.error("Failed loading filter details:", err);
+      }
+    };
+    loadFilters();
+  }, []);
+
+  // Fetch live database records for all ESG columns
+  const fetchAllModuleRecords = async () => {
     setLoading(true);
     try {
-      const [policiesRes, auditsRes, complianceRes] = await Promise.all([
+      const [
+        envRes,
+        socialRes,
+        policiesRes,
+        auditsRes,
+        complianceRes,
+        xpRes
+      ] = await Promise.all([
+        fetch('/api/environment/transactions').then(r => r.ok ? r.json() : { data: [] }),
+        fetch('/api/social/csr-activities').then(r => r.ok ? r.json() : { data: [] }),
         fetch('/api/governance/policies').then(r => r.ok ? r.json() : { data: [] }),
         fetch('/api/governance/audits').then(r => r.ok ? r.json() : { data: [] }),
         fetch('/api/governance/compliance').then(r => r.ok ? r.json() : { data: [] }),
+        fetch('/api/gamification/xp').then(r => r.ok ? r.json() : { data: [] })
       ]);
-      setPolicies(policiesRes.data || []);
-      setAudits(auditsRes.data || []);
-      setComplianceIssues(complianceRes.data || []);
+
+      setEnvTransactions(envRes.data || []);
+      setSocialActivities(socialRes.data || socialRes.activities || []);
+      setGovPolicies(policiesRes.data || []);
+      setGovAudits(auditsRes.data || []);
+      setGovCompliance(complianceRes.data || []);
+      setGameXP(xpRes.data || []);
     } catch (err) {
-      console.error("Failed to load reports database info", err);
+      console.error("Failed consolidating records:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDatabaseData();
+    fetchAllModuleRecords();
   }, []);
 
-  // Reset filters when switching reports
+  // Sync initial module filter states based on selected report category
   useEffect(() => {
-    setDepartment('all');
-    setEmployee('all');
-    setFromDate('');
-    setToDate('');
-    setStatus('all');
+    setFilterDept('all');
+    setFilterEmp('all');
+    setFilterFromDate('');
+    setFilterToDate('');
     setSearchTerm('');
-    setBuilderModule('all');
-    setBuilderPolicy('all');
-    setBuilderAudit('all');
-    setBuilderIssue('all');
-    setBuilderSeverity('all');
-    setCustomReportRows([]);
-    setBuilderGenerated(false);
+    setFilterChallenge('all');
+    setFilterCategory('all');
+
+    if (activeReport === 'environmental') {
+      setFilterModule('Environmental');
+    } else if (activeReport === 'social') {
+      setFilterModule('Social');
+    } else if (activeReport === 'governance') {
+      setFilterModule('Governance');
+    } else {
+      setFilterModule('all');
+    }
   }, [activeReport]);
 
-  const isWithinDateRange = (dateStr: string) => {
-    if (!dateStr) return false;
-    const itemDate = dateStr.slice(0, 10);
-    const startMatch = !fromDate || itemDate >= fromDate;
-    const endMatch = !toDate || itemDate <= toDate;
-    return startMatch && endMatch;
-  };
+  // Consolidate cross-module datasets
+  const unifiedDataset = useMemo(() => {
+    const records: any[] = [];
 
-  // 1. Governance Summary filtering
-  const filteredGovernanceSummary = useMemo(() => {
-    // Group metrics by department from MySQL arrays
-    const list = ['HR', 'Finance', 'Manufacturing', 'IT', 'Operations'];
-    return list.map(name => {
-      const deptPolicies = policies.filter(p => p.ownerDepartment?.name === name || p.category === name);
-      const deptAudits = audits.filter(a => a.department?.name === name);
-      const deptIssues = complianceIssues.filter(i => i.department?.name === name);
-      return {
-        id: name.toLowerCase(),
-        department: name,
-        complianceScore: name === 'IT' ? '100%' : name === 'Finance' ? '98%' : '90%',
-        totalPolicies: deptPolicies.length || 3,
-        activeAudits: deptAudits.filter(a => a.status === 'ONGOING' || a.status === 'Ongoing').length,
-        openIssues: deptIssues.filter(i => i.status === 'Open' || i.status === 'OPEN').length,
-        status: 'Active',
-        date: new Date().toISOString()
-      };
-    }).filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchSearch = row.department.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchSearch;
+    // 1. Environmental carbon transactions
+    envTransactions.forEach(t => {
+      records.push({
+        id: `env-${t.id.slice(0, 6)}`,
+        module: 'Environmental',
+        category: 'Carbon Offset',
+        title: `Carbon calculation for product: ${t.productName || 'General'}`,
+        department: t.departmentName || 'Manufacturing',
+        employeeName: 'System Account',
+        challengeTitle: 'N/A',
+        date: t.date || t.createdAt || '',
+        status: 'RECORDED',
+        value: `${t.carbonOffset || 0} kg CO2`
+      });
     });
-  }, [policies, audits, complianceIssues, department, searchTerm]);
 
-  // 2. Policy Report filtering
-  const filteredPolicyReport = useMemo(() => {
-    return policies.map(p => ({
-      id: p.id,
-      name: p.title || p.policyName || '',
-      category: p.category || '',
-      version: p.version || '1.0',
-      lastUpdated: p.updatedAt || p.effectiveDate || '',
-      status: p.status || 'Active',
-      department: p.ownerDepartment?.name || 'HR',
-      employee: p.ownerEmployee ? `${p.ownerEmployee.firstName} ${p.ownerEmployee.lastName}` : 'System',
-      date: p.effectiveDate
-    })).filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchEmp = employee === 'all' || row.employee.includes(employee);
-      const matchStatus = status === 'all' || row.status === status;
-      const matchDate = !fromDate && !toDate || isWithinDateRange(row.date);
-      const matchSearch = (row.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (row.category || '').toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchEmp && matchStatus && matchDate && matchSearch;
+    // 2. Social CSR Activities
+    socialActivities.forEach(act => {
+      records.push({
+        id: `soc-${act.id.slice(0, 6)}`,
+        module: 'Social',
+        category: 'CSR Activities',
+        title: act.title || act.activityName || 'Volunteer Event',
+        department: 'Operations',
+        employeeName: 'CSR Team',
+        challengeTitle: 'N/A',
+        date: act.date || act.createdAt || '',
+        status: act.status || 'Active',
+        value: act.location || 'HQ Office'
+      });
     });
-  }, [policies, department, employee, fromDate, toDate, status, searchTerm]);
 
-  // 3. Policy Acknowledgement filtering
-  const filteredPolicyAcknowledgement = useMemo(() => {
-    // Generate policy acknowledgement logs
-    const list: any[] = [];
-    policies.forEach(p => {
-      if (p.acknowledgements) {
-        p.acknowledgements.forEach((ack: any) => {
-          list.push({
-            id: ack.id,
-            employee: ack.employee ? `${ack.employee.firstName} ${ack.employee.lastName}` : 'Employee',
-            department: ack.employee?.department?.name || 'Operations',
-            policyName: p.title || p.policyName || '',
-            acknowledgedDate: ack.acceptedAt || '',
-            version: ack.versionNumber,
-            status: ack.status,
-            date: ack.createdAt
-          });
-        });
+    // 3. Governance policies
+    govPolicies.forEach(p => {
+      records.push({
+        id: `gov-pol-${p.id.slice(0, 6)}`,
+        module: 'Governance',
+        category: 'Policies & Standards',
+        title: p.title || p.policyName || '',
+        department: p.ownerDepartment?.name || 'HR',
+        employeeName: p.ownerEmployee ? `${p.ownerEmployee.firstName} ${p.ownerEmployee.lastName}` : 'System Admin',
+        challengeTitle: 'N/A',
+        date: p.updatedAt || p.effectiveDate || '',
+        status: p.status || 'Active',
+        value: `Version ${p.version || '1.0'}`
+      });
+    });
+
+    // 4. Governance compliance audits
+    govAudits.forEach(a => {
+      records.push({
+        id: `gov-aud-${a.id.slice(0, 6)}`,
+        module: 'Governance',
+        category: 'Compliance Audits',
+        title: a.name,
+        department: a.department?.name || 'Finance',
+        employeeName: a.auditorEmployee ? `${a.auditorEmployee.firstName} ${a.auditorEmployee.lastName}` : 'External Auditor',
+        challengeTitle: 'N/A',
+        date: a.startDate || '',
+        status: a.status,
+        value: a.score !== null ? `Score: ${a.score}%` : 'Ongoing'
+      });
+    });
+
+    // 5. Governance compliance issues
+    govCompliance.forEach(i => {
+      records.push({
+        id: `gov-comp-${i.id.slice(0, 6)}`,
+        module: 'Governance',
+        category: 'Compliance Issues',
+        title: i.title,
+        department: i.department?.name || 'Operations',
+        employeeName: i.ownerEmployee ? `${i.ownerEmployee.firstName} ${i.ownerEmployee.lastName}` : 'Unassigned',
+        challengeTitle: 'N/A',
+        date: i.createdAt || '',
+        status: i.status,
+        value: `Severity: ${i.severity}`
+      });
+    });
+
+    // 6. Gamification XP transactions
+    gameXP.forEach(x => {
+      records.push({
+        id: `game-xp-${x.id.slice(0, 6)}`,
+        module: 'Gamification',
+        category: 'Gamification XP',
+        title: x.activityName,
+        department: x.departmentName || 'Operations',
+        employeeName: x.employeeName,
+        challengeTitle: x.challengeTitle || 'N/A',
+        date: x.createdAt || '',
+        status: 'COMPLETED',
+        value: `${x.xp >= 0 ? '+' : ''}${x.xp} XP`
+      });
+    });
+
+    return records;
+  }, [envTransactions, socialActivities, govPolicies, govAudits, govCompliance, gameXP]);
+
+  // Apply consolidated filters
+  const filteredReportRows = useMemo(() => {
+    return unifiedDataset.filter(item => {
+      // 1. Department Filter
+      if (filterDept !== 'all' && item.department !== filterDept) return false;
+
+      // 2. Employee Filter
+      if (filterEmp !== 'all') {
+        const matchEmp = filterData.employees.find(e => e.id === filterEmp);
+        if (matchEmp && !item.employeeName.toLowerCase().includes(matchEmp.name.split(' ')[0].toLowerCase())) return false;
       }
+
+      // 3. Date Range Filter
+      if (filterFromDate || filterToDate) {
+        const itemDateStr = item.date ? item.date.slice(0, 10) : '';
+        if (filterFromDate && itemDateStr < filterFromDate) return false;
+        if (filterToDate && itemDateStr > filterToDate) return false;
+      }
+
+      // 4. Module Filter
+      if (filterModule !== 'all' && item.module !== filterModule) return false;
+
+      // 5. Challenge Filter
+      if (filterChallenge !== 'all' && item.challengeTitle !== filterChallenge) return false;
+
+      // 6. ESG Category Filter
+      if (filterCategory !== 'all' && item.category !== filterCategory) return false;
+
+      // 7. Search filter matches
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const matchTitle = item.title.toLowerCase().includes(term);
+        const matchVal = item.value.toLowerCase().includes(term);
+        const matchDeptName = item.department.toLowerCase().includes(term);
+        const matchEmpName = item.employeeName.toLowerCase().includes(term);
+        if (!matchTitle && !matchVal && !matchDeptName && !matchEmpName) return false;
+      }
+
+      return true;
     });
+  }, [unifiedDataset, filterDept, filterEmp, filterFromDate, filterToDate, filterModule, filterChallenge, filterCategory, filterData, searchTerm]);
 
-    // Fallback if database lacks items
-    if (list.length === 0) {
-      list.push(
-        { id: 'ack-1', employee: 'Anita Das', department: 'HR', policyName: 'Code of Conduct & Ethics', acknowledgedDate: '2026-01-12', version: 'v2.1', status: 'Acknowledged', date: '2026-01-12' },
-        { id: 'ack-2', employee: 'Rohit Kumar', department: 'Finance', policyName: 'Whistleblower Protection', acknowledgedDate: '2025-11-21', version: 'v2.0', status: 'Acknowledged', date: '2025-11-21' },
-        { id: 'ack-3', employee: 'Meera Singh', department: 'Manufacturing', policyName: 'Environmental Policy', acknowledgedDate: '', version: 'v1.4', status: 'Pending', date: '' }
-      );
-    }
-
-    return list.filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchEmp = employee === 'all' || row.employee.includes(employee);
-      const matchStatus = status === 'all' || row.status === status;
-      const matchDate = !fromDate && !toDate || (row.acknowledgedDate ? isWithinDateRange(row.acknowledgedDate) : true);
-      const matchSearch = (row.employee || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (row.policyName || '').toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchEmp && matchStatus && matchDate && matchSearch;
-    });
-  }, [policies, department, employee, fromDate, toDate, status, searchTerm]);
-
-  // 4. Audit Report filtering
-  const filteredAuditReport = useMemo(() => {
-    return audits.map(a => ({
-      id: a.id,
-      name: a.name,
-      scope: a.auditType,
-      auditor: a.auditorEmployee ? `${a.auditorEmployee.firstName} ${a.auditorEmployee.lastName}` : 'External Auditor',
-      targetDate: a.startDate,
-      status: a.status,
-      auditScore: a.score !== null ? `${a.score}%` : 'N/A',
-      department: a.department?.name || 'Finance',
-      employee: a.auditorEmployee ? `${a.auditorEmployee.firstName} ${a.auditorEmployee.lastName}` : 'System',
-      date: a.startDate
-    })).filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchEmp = employee === 'all' || row.employee.includes(employee);
-      const matchStatus = status === 'all' || row.status === status;
-      const matchDate = !fromDate && !toDate || isWithinDateRange(row.date);
-      const matchSearch = row.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          row.auditor.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchEmp && matchStatus && matchDate && matchSearch;
-    });
-  }, [audits, department, employee, fromDate, toDate, status, searchTerm]);
-
-  // 5. Compliance Issues filtering
-  const filteredComplianceIssues = useMemo(() => {
-    return complianceIssues.map(i => ({
-      id: i.id,
-      title: i.title,
-      category: i.severity === 'HIGH' ? 'Critical' : 'General',
-      severity: i.severity,
-      dueDate: i.dueDate,
-      status: i.status,
-      department: i.department?.name || 'Operations',
-      employee: i.ownerEmployee ? `${i.ownerEmployee.firstName} ${i.ownerEmployee.lastName}` : 'Unassigned',
-      date: i.createdAt
-    })).filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchEmp = employee === 'all' || row.employee.includes(employee);
-      const matchStatus = status === 'all' || row.status === status;
-      const matchDate = !fromDate && !toDate || isWithinDateRange(row.date);
-      const matchSearch = row.title.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchEmp && matchStatus && matchDate && matchSearch;
-    });
-  }, [complianceIssues, department, employee, fromDate, toDate, status, searchTerm]);
-
-  // 6. Employee Governance Report filtering
-  const filteredEmployeeGovernance = useMemo(() => {
-    // Extract employee compliance summary
-    const list = [
-      { id: 'emp-1', employee: 'Anita Das', department: 'HR', email: 'anita.das@company.com', policiesCount: 3, openIssues: 0, status: 'Active', date: new Date().toISOString() },
-      { id: 'emp-2', employee: 'Rohit Kumar', department: 'Finance', email: 'rohit.kumar@company.com', policiesCount: 2, openIssues: 1, status: 'Active', date: new Date().toISOString() },
-      { id: 'emp-3', employee: 'Meera Singh', department: 'Manufacturing', email: 'meera.singh@company.com', policiesCount: 1, openIssues: 2, status: 'Active', date: new Date().toISOString() },
-    ];
-    return list.filter(row => {
-      const matchDept = department === 'all' || row.department === department;
-      const matchEmp = employee === 'all' || row.employee.includes(employee);
-      const matchSearch = row.employee.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchDept && matchEmp && matchSearch;
-    });
-  }, [department, employee, searchTerm]);
-
-  // Custom Report Builder Generation Action
-  const handleGenerateCustomReport = () => {
-    const combinedData: any[] = [];
-
-    // Policies
-    if (builderModule === 'all' || builderModule === 'policies') {
-      policies.forEach(p => {
-        const matchDept = department === 'all' || p.ownerDepartment?.name === department;
-        const matchStatus = status === 'all' || p.status === status;
-        const matchDate = !fromDate && !toDate || isWithinDateRange(p.effectiveDate);
-        if (matchDept && matchStatus && matchDate) {
-          combinedData.push({
-            id: p.id.slice(0, 8),
-            module: 'Policy',
-            detail: `${p.policyName} (${p.category})`,
-            department: p.ownerDepartment?.name || 'HR',
-            responsible: p.ownerEmployee ? `${p.ownerEmployee.firstName} ${p.ownerEmployee.lastName}` : 'System',
-            date: p.effectiveDate.slice(0, 10),
-            status: p.status,
-            severity: '—'
-          });
-        }
-      });
-    }
-
-    // Audits
-    if (builderModule === 'all' || builderModule === 'audits') {
-      audits.forEach(a => {
-        const matchDept = department === 'all' || a.department?.name === department;
-        const matchStatus = status === 'all' || a.status === status;
-        const matchDate = !fromDate && !toDate || isWithinDateRange(a.startDate);
-        if (matchDept && matchStatus && matchDate) {
-          combinedData.push({
-            id: a.id.slice(0, 8),
-            module: 'Audit',
-            detail: a.name,
-            department: a.department?.name || 'Finance',
-            responsible: a.auditorEmployee ? `${a.auditorEmployee.firstName} ${a.auditorEmployee.lastName}` : 'External',
-            date: a.startDate.slice(0, 10),
-            status: a.status,
-            severity: a.score !== null ? `Score: ${a.score}%` : '—'
-          });
-        }
-      });
-    }
-
-    // Issues
-    if (builderModule === 'all' || builderModule === 'compliance') {
-      complianceIssues.forEach(i => {
-        const matchDept = department === 'all' || i.department?.name === department;
-        const matchStatus = status === 'all' || i.status === status;
-        const matchDate = !fromDate && !toDate || isWithinDateRange(i.createdAt);
-        const matchSev = builderSeverity === 'all' || i.severity === builderSeverity;
-        if (matchDept && matchStatus && matchDate && matchSev) {
-          combinedData.push({
-            id: i.id.slice(0, 8),
-            module: 'Compliance',
-            detail: i.title,
-            department: i.department?.name || 'Operations',
-            responsible: i.ownerEmployee ? `${i.ownerEmployee.firstName} ${i.ownerEmployee.lastName}` : 'Unassigned',
-            date: i.dueDate ? i.dueDate.slice(0, 10) : '—',
-            status: i.status,
-            severity: i.severity
-          });
-        }
-      });
-    }
-
-    setCustomReportRows(combinedData);
-    setBuilderGenerated(true);
-    toast.success(`Custom spreadsheet built with ${combinedData.length} records!`);
-  };
-
+  // Handle file download exports
   const handleExport = (format: string) => {
-    toast.success(`${format.toUpperCase()} export started successfully.`);
+    setIsExporting(true);
+    setTimeout(() => {
+      setIsExporting(false);
+      toast.success(`${format.toUpperCase()} report exported successfully.`);
+
+      let contents = '';
+      if (format === 'csv') {
+        contents = "ID,Module,ESG Category,Title / Action,Department,Responsible Employee,Date,Status,Telemetry Value\n" +
+          filteredReportRows.map(row => 
+            `"${row.id}","${row.module}","${row.category}","${row.title.replace(/"/g, '""')}","${row.department}","${row.employeeName}","${row.date ? row.date.slice(0, 10) : '—'}","${row.status}","${row.value}"`
+          ).join("\n");
+      } else {
+        contents = `ECOSPHERE ESG COMPLIANCE TELEMETRY REPORT\n` +
+          `Report Type: ${REPORT_CATEGORIES_LIST.find(c => c.key === activeReport)?.title || 'Custom Worksheet'}\n` +
+          `Generated on: ${new Date().toLocaleString()}\n` +
+          `Record count: ${filteredReportRows.length}\n\n` +
+          `ID\tModule\tCategory\tTitle\tDepartment\tResponsible\tDate\tStatus\tValue\n` +
+          filteredReportRows.map(row => 
+            `${row.id}\t${row.module}\t${row.category}\t${row.title}\t${row.department}\t${row.employeeName}\t${row.date ? row.date.slice(0, 10) : '—'}\t${row.status}\t${row.value}`
+          ).join("\n");
+      }
+
+      const fileBlob = new Blob([contents], { type: format === 'csv' ? 'text/csv' : 'text/plain' });
+      const element = document.createElement("a");
+      element.href = URL.createObjectURL(fileBlob);
+      element.download = `esg_report_${activeReport}_${Date.now()}.${format === 'excel' ? 'xls' : format === 'pdf' ? 'pdf' : 'csv'}`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }, 1200);
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 space-y-4">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-        <span className="text-sm text-zinc-400 font-medium">Preparing Governance Records...</span>
-      </div>
-    );
-  }
-
-  // Registry List View
+  // Back list menu
   if (!activeReport) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent w-fit">
             Governance Reports Center
           </h2>
           <p className="text-sm text-zinc-400 mt-1">
-            Access pre-built compliance dashboards or generate customized worksheets.
+            Access pre-built dashboards or consolidate cross-module queries into custom sheets.
           </p>
         </div>
 
@@ -382,9 +389,10 @@ export default function GovernanceReportsPage() {
   const activeCategory = REPORT_CATEGORIES_LIST.find(c => c.key === activeReport);
 
   return (
-    <div className="space-y-6">
-      {/* Back link & title */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 animate-fadeIn">
+      
+      {/* Title & Navigation */}
+      <div className="flex items-center justify-between border-b border-white/5 pb-4">
         <div className="space-y-1">
           <button 
             onClick={() => setActiveReport(null)} 
@@ -400,417 +408,241 @@ export default function GovernanceReportsPage() {
         </div>
       </div>
 
-      {/* Unified top filters */}
+      {/* Dynamic Filter toolbar (renders for each report) */}
       <div className="border border-white/10 bg-white/[0.02] rounded-xl p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
+        <div className="flex justify-between items-center">
+          <h4 className="text-[10px] font-bold text-zinc-450 uppercase tracking-widest">Query Filters</h4>
+          {(filterDept !== 'all' || filterEmp !== 'all' || filterFromDate || filterToDate || filterModule !== 'all' || filterChallenge !== 'all' || filterCategory !== 'all') && (
+            <button
+              onClick={() => {
+                setFilterDept('all');
+                setFilterEmp('all');
+                setFilterFromDate('');
+                setFilterToDate('');
+                setFilterModule(activeReport === 'environmental' ? 'Environmental' : activeReport === 'social' ? 'Social' : activeReport === 'governance' ? 'Governance' : 'all');
+                setFilterChallenge('all');
+                setFilterCategory('all');
+                toast.success('Filters cleared.');
+              }}
+              className="text-[9px] font-bold text-rose-400 hover:underline"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end">
           
+          {/* 1. Department */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Department</label>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">Department</label>
             <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+              value={filterDept}
+              onChange={(e) => setFilterDept(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
             >
               <option value="all">All Departments</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Manufacturing">Manufacturing</option>
-              <option value="IT">IT</option>
-              <option value="Operations">Operations</option>
+              {filterData.departments.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
             </select>
           </div>
 
+          {/* 2. Employee */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Employee</label>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">Employee</label>
             <select
-              value={employee}
-              onChange={(e) => setEmployee(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+              value={filterEmp}
+              onChange={(e) => setFilterEmp(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
             >
               <option value="all">All Employees</option>
-              <option value="Anita">Anita Das</option>
-              <option value="Rohit">Rohit Kumar</option>
-              <option value="Meera">Meera Singh</option>
+              {filterData.employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 col-span-1">
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">From</label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white [color-scheme:dark]"
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">To</label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white [color-scheme:dark]"
-              />
-            </div>
-          </div>
-
+          {/* 3. Date: From */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Status</label>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">From Date</label>
+            <input
+              type="date"
+              value={filterFromDate}
+              onChange={(e) => setFilterFromDate(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-xs text-white [color-scheme:dark] focus:outline-none"
+            />
+          </div>
+
+          {/* 4. Date: To */}
+          <div>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">To Date</label>
+            <input
+              type="date"
+              value={filterToDate}
+              onChange={(e) => setFilterToDate(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-xs text-white [color-scheme:dark] focus:outline-none"
+            />
+          </div>
+
+          {/* 5. Module (Disabled if report tab pre-locks it) */}
+          <div>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">Module</label>
             <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+              value={filterModule}
+              disabled={activeReport !== 'summary' && activeReport !== 'custom-builder'}
+              onChange={(e) => setFilterModule(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none disabled:opacity-50"
             >
-              <option value="all">All Statuses</option>
-              <option value="ACTIVE">Active / Compliant</option>
-              <option value="Completed">Completed</option>
-              <option value="Pending">Pending</option>
-              <option value="Open">Open</option>
+              <option value="all">All Modules</option>
+              <option value="Environmental">Environmental</option>
+              <option value="Social">Social</option>
+              <option value="Governance">Governance</option>
+              <option value="Gamification">Gamification</option>
             </select>
           </div>
 
-          <div className="flex gap-2 justify-stretch">
-            <button onClick={() => handleExport('pdf')} className="flex-1 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-white flex items-center justify-center gap-1.5 font-bold transition-all">
-              <FileText className="w-3.5 h-3.5 text-emerald-400" /> PDF
-            </button>
-            <button onClick={() => handleExport('excel')} className="flex-1 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-white flex items-center justify-center gap-1.5 font-bold transition-all">
-              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" /> Excel
-            </button>
-            <button onClick={() => handleExport('csv')} className="flex-1 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-white flex items-center justify-center gap-1.5 font-bold transition-all">
-              <Download className="w-3.5 h-3.5 text-emerald-400" /> CSV
-            </button>
+          {/* 6. Challenge */}
+          <div>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">Challenge</label>
+            <select
+              value={filterChallenge}
+              onChange={(e) => setFilterChallenge(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            >
+              <option value="all">All Challenges</option>
+              {filterData.challenges.map(c => <option key={c.id} value={c.title}>{c.title}</option>)}
+            </select>
+          </div>
+
+          {/* 7. ESG Category */}
+          <div>
+            <label className="block text-[9px] font-bold text-zinc-450 uppercase mb-1">ESG Category</label>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+            >
+              <option value="all">All Categories</option>
+              <option value="Carbon Offset">Carbon Footprints</option>
+              <option value="CSR Activities">CSR Activities</option>
+              <option value="Policies & Standards">Policies &amp; Standards</option>
+              <option value="Compliance Audits">Compliance Audits</option>
+              <option value="Compliance Issues">Compliance Issues</option>
+              <option value="Gamification XP">Gamification XP</option>
+            </select>
           </div>
 
         </div>
       </div>
 
-      {/* Builder configuration area */}
-      {activeReport === 'custom-builder' && (
-        <div className="border border-emerald-500/10 bg-emerald-500/[0.02] rounded-xl p-5 space-y-4">
-          <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Custom Report Queries</h3>
-            <p className="text-[10px] text-zinc-400 mt-0.5">Toggle criteria parameters to generate aggregated compliance worksheets.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Target Module</label>
-              <select
-                value={builderModule}
-                onChange={(e) => setBuilderModule(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
-              >
-                <option value="all">All Modules</option>
-                <option value="policies">Policies</option>
-                <option value="audits">Audits</option>
-                <option value="compliance">Compliance Issues</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Policy Filter</label>
-              <select
-                value={builderPolicy}
-                onChange={(e) => setBuilderPolicy(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
-              >
-                <option value="all">All Policies</option>
-                {policies.map(p => <option key={p.id} value={p.policyName}>{p.policyName}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Audit Type</label>
-              <select
-                value={builderAudit}
-                onChange={(e) => setBuilderAudit(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
-              >
-                <option value="all">All Audits</option>
-                {audits.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Issue Status</label>
-              <select
-                value={builderIssue}
-                onChange={(e) => setBuilderIssue(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
-              >
-                <option value="all">All Issues</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-1">Severity</label>
-              <select
-                value={builderSeverity}
-                onChange={(e) => setBuilderSeverity(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
-              >
-                <option value="all">All Severities</option>
-                <option value="HIGH">High / Critical</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="LOW">Low</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex justify-end pt-2">
-            <button 
-              onClick={handleGenerateCustomReport}
-              className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-xs font-bold text-[#09090b] flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 transition-colors"
-            >
-              <Play className="w-3.5 h-3.5 fill-black text-black" /> Generate Custom Spreadsheet
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Reports Display Card */}
+      {/* worksheet result table */}
       <div className="border border-white/10 bg-white/[0.02] rounded-xl overflow-hidden shadow-xl">
-        <div className="p-5 border-b border-white/5 flex items-center justify-between">
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider">Report Datasheet</h3>
-          {activeReport !== 'custom-builder' && (
+        <div className="p-5 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/5">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              Worksheet Results ({filteredReportRows.length} rows matched)
+            </h3>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <input
               type="text"
-              placeholder="Filter table rows..."
+              placeholder="Search details..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 w-52 placeholder-zinc-550"
+              className="bg-black/30 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 w-full sm:w-44 placeholder-zinc-550"
             />
-          )}
+            
+            <div className="flex gap-1.5 shrink-0">
+              <button 
+                type="button"
+                onClick={() => handleExport('pdf')}
+                disabled={isExporting} 
+                className="p-1.5 px-3 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold text-slate-200 transition-colors flex items-center gap-1"
+              >
+                <FileText className="w-3 h-3 text-red-400" /> PDF
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleExport('excel')}
+                disabled={isExporting} 
+                className="p-1.5 px-3 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold text-slate-200 transition-colors flex items-center gap-1"
+              >
+                <FileSpreadsheet className="w-3 h-3 text-emerald-450" /> Excel
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleExport('csv')}
+                disabled={isExporting} 
+                className="p-1.5 px-3 rounded bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-bold text-slate-200 transition-colors flex items-center gap-1"
+              >
+                <Download className="w-3 h-3 text-sky-400" /> CSV
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
-          {/* Governance Summary Table */}
-          {activeReport === 'governance-summary' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
+          <table className="w-full text-xs text-left">
+            <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
+              <tr>
+                <th className="px-6 py-3.5 w-24">ID</th>
+                <th className="px-6 py-3.5 w-32">Module</th>
+                <th className="px-6 py-3.5 w-40">ESG Category</th>
+                <th className="px-6 py-3.5">Details</th>
+                <th className="px-6 py-3.5">Department</th>
+                <th className="px-6 py-3.5">Responsible</th>
+                <th className="px-6 py-3.5">Date</th>
+                <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5 text-right rounded-tr-lg">Value</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-zinc-300">
+              {filteredReportRows.length === 0 ? (
                 <tr>
-                  <th className="px-6 py-3.5">Department</th>
-                  <th className="px-6 py-3.5">Compliance Score</th>
-                  <th className="px-6 py-3.5">Total Policies</th>
-                  <th className="px-6 py-3.5">Active Audits</th>
-                  <th className="px-6 py-3.5">Open Issues</th>
-                  <th className="px-6 py-3.5">Status</th>
+                  <td colSpan={9} className="px-6 py-12 text-center text-zinc-555 bg-transparent italic">
+                    No corporate records matched current selection filters. Try refining your dates or module settings.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredGovernanceSummary.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.department}</td>
-                    <td className="px-6 py-4 text-emerald-400 font-semibold">{row.complianceScore}</td>
-                    <td className="px-6 py-4">{row.totalPolicies}</td>
-                    <td className="px-6 py-4">{row.activeAudits}</td>
+              ) : (
+                filteredReportRows.map(row => (
+                  <tr key={row.id} className="hover:bg-white/[0.01] transition-colors">
+                    <td className="px-6 py-4 font-mono text-[10.5px] text-zinc-500">{row.id}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${row.openIssues > 0 ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-emerald-500/10 text-emerald-400"}`}>
-                        {row.openIssues} Issues
+                      <span className={`px-2 py-0.5 rounded text-[9.5px] font-bold ${
+                        row.module === 'Environmental' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/15' :
+                        row.module === 'Social' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/15' :
+                        row.module === 'Governance' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/15' :
+                        'bg-amber-500/10 text-amber-400 border border-amber-500/15'
+                      }`}>
+                        {row.module}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{row.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Policy Report */}
-          {activeReport === 'policy' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Policy Name</th>
-                  <th className="px-6 py-3.5">Category</th>
-                  <th className="px-6 py-3.5">Version</th>
-                  <th className="px-6 py-3.5">Last Updated</th>
-                  <th className="px-6 py-3.5">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredPolicyReport.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.name}</td>
-                    <td className="px-6 py-4">{row.category}</td>
-                    <td className="px-6 py-4 font-mono">{row.version}</td>
-                    <td className="px-6 py-4">{new Date(row.lastUpdated).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">
-                      <span className="text-emerald-400 font-bold">{row.status}</span>
+                    <td className="px-6 py-4 font-medium text-slate-350">{row.category}</td>
+                    <td className="px-6 py-4 font-bold text-white max-w-xs truncate" title={row.title}>{row.title}</td>
+                    <td className="px-6 py-4 text-slate-350">{row.department}</td>
+                    <td className="px-6 py-4 text-slate-200">{row.employeeName}</td>
+                    <td className="px-6 py-4 font-mono text-[10.5px] text-zinc-400">
+                      {row.date ? new Date(row.date).toLocaleDateString() : '—'}
                     </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Acknowledgement Table */}
-          {activeReport === 'acknowledgement' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Employee</th>
-                  <th className="px-6 py-3.5">Department</th>
-                  <th className="px-6 py-3.5">Policy Name</th>
-                  <th className="px-6 py-3.5">Acknowledged Date</th>
-                  <th className="px-6 py-3.5">Version</th>
-                  <th className="px-6 py-3.5">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredPolicyAcknowledgement.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.employee}</td>
-                    <td className="px-6 py-4">{row.department}</td>
-                    <td className="px-6 py-4">{row.policyName}</td>
-                    <td className="px-6 py-4">{row.acknowledgedDate || "—"}</td>
-                    <td className="px-6 py-4 font-mono">{row.version}</td>
                     <td className="px-6 py-4">
-                      <span className={row.status === 'Acknowledged' ? "text-emerald-400" : "text-amber-400"}>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        row.status === 'APPROVED' || row.status === 'COMPLETED' || row.status === 'Active' || row.status === 'RECORDED'
+                          ? 'bg-emerald-500/5 text-emerald-450'
+                          : row.status === 'REJECTED' || row.status === 'Closed'
+                            ? 'bg-rose-500/5 text-rose-450'
+                            : 'bg-amber-500/5 text-amber-450'
+                      }`}>
                         {row.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4 text-right font-semibold text-white">{row.value}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Audit Report */}
-          {activeReport === 'audit' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Audit Name</th>
-                  <th className="px-6 py-3.5">Scope</th>
-                  <th className="px-6 py-3.5">Auditor</th>
-                  <th className="px-6 py-3.5">Target Date</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5">Audit Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredAuditReport.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.name}</td>
-                    <td className="px-6 py-4">{row.scope}</td>
-                    <td className="px-6 py-4">{row.auditor}</td>
-                    <td className="px-6 py-4">{new Date(row.targetDate).toLocaleDateString()}</td>
-                    <td className="px-6 py-4">{row.status}</td>
-                    <td className="px-6 py-4 text-emerald-400 font-semibold">{row.auditScore}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Compliance Report */}
-          {activeReport === 'compliance' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Issue Title</th>
-                  <th className="px-6 py-3.5">Severity</th>
-                  <th className="px-6 py-3.5">Department</th>
-                  <th className="px-6 py-3.5">Responsible</th>
-                  <th className="px-6 py-3.5">Due Date</th>
-                  <th className="px-6 py-3.5">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredComplianceIssues.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.title}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${row.severity === 'HIGH' ? "bg-rose-500/10 text-rose-450 border border-rose-500/20" : "bg-amber-500/10 text-amber-400"}`}>
-                        {row.severity}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">{row.department}</td>
-                    <td className="px-6 py-4">{row.employee}</td>
-                    <td className="px-6 py-4">{row.dueDate ? new Date(row.dueDate).toLocaleDateString() : "—"}</td>
-                    <td className="px-6 py-4">{row.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Employee Governance */}
-          {activeReport === 'employee-governance' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Employee Name</th>
-                  <th className="px-6 py-3.5">Department</th>
-                  <th className="px-6 py-3.5">Email</th>
-                  <th className="px-6 py-3.5">Policies Acknowledged</th>
-                  <th className="px-6 py-3.5">Open Issues</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {filteredEmployeeGovernance.map(row => (
-                  <tr key={row.id} className="hover:bg-white/[0.01]">
-                    <td className="px-6 py-4 font-bold text-white">{row.employee}</td>
-                    <td className="px-6 py-4">{row.department}</td>
-                    <td className="px-6 py-4 font-mono">{row.email}</td>
-                    <td className="px-6 py-4 text-emerald-400 font-semibold">{row.policiesCount} Policies</td>
-                    <td className="px-6 py-4 text-rose-400">{row.openIssues} Issues</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {/* Custom Builder spreadsheet */}
-          {activeReport === 'custom-builder' && (
-            <table className="w-full text-xs text-left">
-              <thead className="bg-black/20 text-zinc-400 font-bold uppercase border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-3.5">Record ID</th>
-                  <th className="px-6 py-3.5">Module</th>
-                  <th className="px-6 py-3.5">Details</th>
-                  <th className="px-6 py-3.5">Department</th>
-                  <th className="px-6 py-3.5">Responsible</th>
-                  <th className="px-6 py-3.5">Date</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5">Severity</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-zinc-300">
-                {!builderGenerated ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-zinc-550">
-                      Configure builder parameters above and click <strong>Generate Custom Spreadsheet</strong>.
-                    </td>
-                  </tr>
-                ) : customReportRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-10 text-center text-zinc-550">
-                      No records matched current filter queries.
-                    </td>
-                  </tr>
-                ) : (
-                  customReportRows.map(row => (
-                    <tr key={`${row.module}-${row.id}`} className="hover:bg-white/[0.01]">
-                      <td className="px-6 py-4 font-mono text-[10px]">{row.id}</td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-white/5 border border-white/10 text-zinc-300">
-                          {row.module}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-white">{row.detail}</td>
-                      <td className="px-6 py-4">{row.department}</td>
-                      <td className="px-6 py-4">{row.responsible}</td>
-                      <td className="px-6 py-4">{row.date}</td>
-                      <td className="px-6 py-4 text-emerald-400 font-bold">{row.status}</td>
-                      <td className="px-6 py-4 text-rose-450 font-bold">{row.severity}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+      
     </div>
   );
 }

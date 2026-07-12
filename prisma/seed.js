@@ -27,10 +27,19 @@ async function main() {
   await prisma.trainingProgram.deleteMany({});
   await prisma.engagementSurvey.deleteMany({});
   await prisma.environmentalReport.deleteMany({});
+  await prisma.rewardRedemption.deleteMany({});
+  await prisma.employeeBadge.deleteMany({});
+  await prisma.xPTransaction.deleteMany({});
+  await prisma.challengeParticipation.deleteMany({});
+  await prisma.challenge.deleteMany({});
+  await prisma.badge.deleteMany({});
+  await prisma.reward.deleteMany({});
+  
   await prisma.sustainabilityGoal.deleteMany({});
   await prisma.carbonTransaction.deleteMany({});
   await prisma.productESGProfile.deleteMany({});
   await prisma.emissionFactor.deleteMany({});
+
   await prisma.employee.deleteMany({});
   await prisma.department.deleteMany({});
   console.log('✅ Database cleaned.\n');
@@ -716,6 +725,204 @@ async function main() {
   });
 
   console.log(`✅ Created Environmental emissions targets & goals.`);
+
+  // ─── Gamification Seeding ──────────────────────────────────────────────────
+  console.log('🌱 Seeding Gamification data...');
+
+  const challenge1 = await prisma.challenge.create({
+    data: {
+      title: 'Water Saving Challenge',
+      category: 'Environmental',
+      description: 'Establish household or office water-saving habits. Fix leaking faucets or install aerators.',
+      difficulty: 'Medium',
+      evidenceRequired: 'Upload photos of water meter or faucet aerator installations',
+      xp: 150,
+      startDate: new Date('2026-07-01'),
+      deadline: new Date('2026-07-31'),
+      status: 'Active',
+      createdBy: 'Sarah Connor'
+    }
+  });
+
+  const challenge2 = await prisma.challenge.create({
+    data: {
+      title: 'Reduce Printing Waste',
+      category: 'Office Operations',
+      description: 'Achieve zero paper printing for 1 week.',
+      difficulty: 'Easy',
+      evidenceRequired: 'Submit screenshot of printer log indicating 0 pages printed',
+      xp: 100,
+      startDate: new Date('2026-07-05'),
+      deadline: new Date('2026-07-15'),
+      status: 'Active',
+      createdBy: 'Sarah Connor'
+    }
+  });
+
+  const challenge3 = await prisma.challenge.create({
+    data: {
+      title: 'Zero Waste Day',
+      category: 'Environmental',
+      description: 'Spend an entire day without producing any landfill waste.',
+      difficulty: 'Hard',
+      evidenceRequired: 'Upload photos of compost bin and recyclable assortments',
+      xp: 300,
+      startDate: new Date('2026-07-10'),
+      deadline: new Date('2026-07-20'),
+      status: 'Under Review',
+      createdBy: 'Sarah Connor'
+    }
+  });
+
+  const badge1 = await prisma.badge.create({
+    data: {
+      name: 'Eco Warrior',
+      description: 'Completed 10 sustainability challenges or earned 1000 XP',
+      icon: '🏅',
+      unlockRule: 'Complete 10 Challenges or Earn 1000 XP',
+      xpThreshold: 1000,
+      challengesCountThreshold: 10,
+      status: 'ACTIVE'
+    }
+  });
+
+  const badge2 = await prisma.badge.create({
+    data: {
+      name: 'Green Champion',
+      description: 'Earned 500 XP in sustainability activities',
+      icon: '🏆',
+      unlockRule: 'Earn 500 XP',
+      xpThreshold: 500,
+      status: 'ACTIVE'
+    }
+  });
+
+  const badge3 = await prisma.badge.create({
+    data: {
+      name: 'Water Saver',
+      description: 'Completed the Water Saving Challenge',
+      icon: '💧',
+      unlockRule: 'Complete Water Saving Challenge',
+      challengesCountThreshold: 1,
+      status: 'ACTIVE'
+    }
+  });
+
+  const reward1 = await prisma.reward.create({
+    data: {
+      name: 'Cafeteria Coffee Voucher',
+      costXp: 100,
+      stock: 50,
+      description: 'Get a free eco-friendly premium coffee at the headquarters cafeteria.',
+      status: 'ACTIVE'
+    }
+  });
+
+  const reward2 = await prisma.reward.create({
+    data: {
+      name: 'Amazon Gift Card (500 INR)',
+      costXp: 500,
+      stock: 10,
+      description: 'INR 500 electronic gift card for Amazon India purchases.',
+      status: 'ACTIVE'
+    }
+  });
+
+  const reward3 = await prisma.reward.create({
+    data: {
+      name: 'Tree Plantation Certificate',
+      costXp: 200,
+      stock: 100,
+      description: 'We will plant a certified native tree in your name to restore forest canopy.',
+      status: 'ACTIVE'
+    }
+  });
+
+  const reward4 = await prisma.reward.create({
+    data: {
+      name: 'Extra Paid Day Off',
+      costXp: 1000,
+      stock: 5,
+      description: 'Apply for 1 additional day of fully paid leave.',
+      status: 'ACTIVE'
+    }
+  });
+
+  // Seed participations using the core employees map
+  const e1 = employeesMap['EMP001'];
+  const e2 = employeesMap['EMP002'];
+  const e3 = employeesMap['EMP003'];
+
+  if (e1 && e2 && e3) {
+    // EMP001 completed printing challenge, earned 100 XP
+    await prisma.challengeParticipation.create({
+      data: {
+        challengeId: challenge2.id,
+        employeeId: e1.id,
+        progress: 100,
+        proof: 'Link to print logs: /uploads/proofs/printer_log_emp001.png',
+        approvalStatus: 'APPROVED',
+        submittedAt: new Date('2026-07-10'),
+        approvedAt: new Date('2026-07-11'),
+        approvedBy: 'Sarah Connor'
+      }
+    });
+
+    await prisma.xPTransaction.create({
+      data: {
+        employeeId: e1.id,
+        challengeId: challenge2.id,
+        xp: 100,
+        activityName: 'Completed Challenge: Reduce Printing Waste'
+      }
+    });
+
+    // EMP002 participating in water saving challenge (progress 50%)
+    await prisma.challengeParticipation.create({
+      data: {
+        challengeId: challenge1.id,
+        employeeId: e2.id,
+        progress: 50,
+        approvalStatus: 'PENDING',
+        createdAt: new Date('2026-07-08')
+      }
+    });
+
+    // EMP003 completed water saving, pending approval, submitted proof
+    await prisma.challengeParticipation.create({
+      data: {
+        challengeId: challenge1.id,
+        employeeId: e3.id,
+        progress: 100,
+        proof: 'Faucet aerator receipt and photo uploaded to /uploads/proofs/aerator_install.jpg',
+        approvalStatus: 'PENDING',
+        submittedAt: new Date('2026-07-12')
+      }
+    });
+
+    // Seed badge award
+    await prisma.employeeBadge.create({
+      data: {
+        employeeId: e1.id,
+        badgeId: badge2.id,
+        earnedAt: new Date('2026-07-11')
+      }
+    });
+
+    // Seed reward redemption
+    await prisma.rewardRedemption.create({
+      data: {
+        employeeId: e1.id,
+        rewardId: reward1.id,
+        xpUsed: 100,
+        status: 'DELIVERED',
+        createdAt: new Date('2026-07-12')
+      }
+    });
+  }
+
+  console.log('✅ Created Gamification mock challenges, badges, and rewards.');
+
   console.log('\n⭐ Database successfully seeded! ⭐');
 }
 

@@ -5,7 +5,7 @@ import {
   BarChart3, RefreshCw, CheckCircle2, ShieldAlert, Sparkles,
   Users2, Landmark, Gamepad2, Settings2, HelpCircle, ArrowRight,
   Plus, Search, Download, Edit2, Archive, Eye, RotateCcw, AlertCircle, FileText, Package,
-  Grid, List, Calendar, TrendingDown, Target, ChevronRight, User, Clock, Info, BarChart2, FileSpreadsheet
+  Grid, List, Calendar, TrendingDown, Target, ChevronRight, User, Clock, Info, BarChart2, FileSpreadsheet, Trophy
 } from 'lucide-react';
 import { Department } from '../types';
 import { 
@@ -485,6 +485,14 @@ export default function GoalsManager({ departments }: GoalsManagerProps) {
             >
               <Landmark className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
               Governance Console
+            </a>
+
+            <a 
+              href="/gamification" 
+              className="flex items-center gap-3 px-3 py-2 text-zinc-400 border border-transparent rounded-lg text-xs font-semibold relative transition-premium group hover:bg-zinc-900/10 hover:text-[#f4f4f5]"
+            >
+              <Trophy className="w-4 h-4 text-zinc-400 group-hover:text-[#f4f4f5] transition-colors" />
+              Gamification Hub
             </a>
           </nav>
         </div>
