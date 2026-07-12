@@ -1,5 +1,9 @@
 # EcoSphere.OS 🌍
 
+Watch the complete platform walkthrough and feature demonstration here:
+
+**🎥 YouTube Demo:** [Watch the Demo](https://www.youtube.com/watch?v=9zKkMeCSok8)
+
 EcoSphere.OS is a comprehensive, enterprise-grade ESG (Environmental, Social, and Governance) intelligence platform. Built with modern web technologies, it features a premium glassmorphic UI, robust data integration, and gamified employee engagement mechanics.
 
 ## 🌟 Platform Modules
