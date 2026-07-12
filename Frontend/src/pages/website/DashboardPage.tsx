@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Users, FileText, GraduationCap, TrendingUp, TrendingDown,
+  FileText, GraduationCap, TrendingUp, TrendingDown,
   Mail, ArrowRight, Eye, Plus, RefreshCw,
-  Calendar, Clock, BarChart3, Wallet, BadgeDollarSign, Bell, Send
+  Calendar, Clock, BarChart3, ShieldAlert, ClipboardCheck
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui';
 import { companiesService } from '../../services';
@@ -115,20 +115,20 @@ function QuickAction({ label, description, href, icon: Icon, color }: QuickActio
   );
 }
 
-// Pie chart data – tiers adding up to 121
-const tierData = [
-  { name: 'Tier 1', value: 45, color: 'hsl(221, 83%, 53%)' },
-  { name: 'Tier 2', value: 48, color: 'hsl(142, 71%, 45%)' },
-  { name: 'Tier 3', value: 28, color: 'hsl(262, 83%, 58%)' },
+// Pie chart data – Policies by Status
+const policiesStatusData = [
+  { name: 'Active', value: 5, color: 'hsl(142, 71%, 45%)' },   // Green
+  { name: 'Draft', value: 2, color: 'hsl(35, 92%, 55%)' },     // Amber
+  { name: 'Expired', value: 1, color: 'hsl(346, 84%, 61%)' },  // Rose/Red
 ];
 
-// Bar chart data – top companies funding comparison
-const fundingData = [
-  { name: 'Acme Corp', secured: 8.2, pending: 3.1 },
-  { name: 'Nova Ltd', secured: 6.5, pending: 4.8 },
-  { name: 'Zenith Inc', secured: 5.9, pending: 2.3 },
-  { name: 'Apex Tech', secured: 4.7, pending: 5.1 },
-  { name: 'Orbit Co', secured: 3.8, pending: 1.9 },
+// Bar chart data – Department Governance Score
+const departmentGovernanceData = [
+  { name: 'HR', policyCompliance: 95, auditScore: 92 },
+  { name: 'Finance', policyCompliance: 98, auditScore: 96 },
+  { name: 'Manufacturing', policyCompliance: 84, auditScore: 80 },
+  { name: 'IT', policyCompliance: 100, auditScore: 95 },
+  { name: 'Operations', policyCompliance: 90, auditScore: 87 },
 ];
 
 export default function DashboardPage() {
@@ -203,47 +203,45 @@ export default function DashboardPage() {
       {/* Main Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
-          title="Total Companies Registered"
-          value={stats?.users?.total || 0}
-          change={stats?.users?.change}
-          icon={Users}
+          title="Total Policies"
+          value={6}
+          icon={FileText}
           color="blue"
         />
         <StatCard
-          title="Funding Pending"
-          value={stats?.post?.published || 0}
-          icon={Wallet}
+          title="Open Compliance Issues"
+          value={4}
+          icon={ShieldAlert}
           color="green"
         />
         <StatCard
-          title="Funding Secured"
-          value={stats?.Reviews?.published || 0}
-          change={stats?.Reviews?.change}
-          icon={BadgeDollarSign}
+          title="Completed Audits"
+          value={12}
+          icon={ClipboardCheck}
           color="purple"
         />
         <StatCard
-          title="Notification Pending"
-          value={19}
-          icon={Bell}
+          title="Pending Policy Acknowledgements"
+          value={18}
+          icon={Clock}
           color="orange"
         />
         <StatCard
-          title="Notification Sent"
-          value={23}
-          icon={Send}
+          title="Overdue Issues"
+          value={3}
+          icon={ShieldAlert}
           color="cyan"
         />
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pie Chart – Company Tiers */}
+        {/* Pie Chart – Policies by Status */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="w-5 h-5 text-muted-foreground" />
-              Companies by Tier (Total: 121)
+              <FileText className="w-5 h-5 text-muted-foreground" />
+              Policies by Status
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -251,7 +249,7 @@ export default function DashboardPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={tierData}
+                    data={policiesStatusData}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -260,7 +258,7 @@ export default function DashboardPage() {
                     dataKey="value"
                     label={({ name, value }) => `${name}: ${value}`}
                   >
-                    {tierData.map((entry, index) => (
+                    {policiesStatusData.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
@@ -272,25 +270,25 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Bar Chart – Top Companies Funding */}
+        {/* Bar Chart – Department Governance Score */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-muted-foreground" />
-              Top Companies – Funding Margins (in Lakhs)
+              Department Governance Score
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={fundingData} barGap={4}>
+                <BarChart data={departmentGovernanceData} barGap={6}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="secured" name="Secured" fill="hsl(262, 83%, 58%)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="pending" name="Pending" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="policyCompliance" name="Policy Compliance (%)" fill="hsl(221, 83%, 53%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="auditScore" name="Audit Score (%)" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

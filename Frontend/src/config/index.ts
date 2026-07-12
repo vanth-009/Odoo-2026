@@ -98,22 +98,28 @@ export const NAVIGATION: Record<string, NavItem[]> = {
       permission: null
     },
 
+    // Policies
     {
-      name: 'Upload',
-      href: '/website/uploads',
-      icon: 'Upload',
+      name: 'Policies',
+      href: '/website/policies',
+      icon: 'FileText',
       permission: PERMISSIONS.VIEW_USERS,
     },
 
-    // Users & Access
+    // Audits
     {
-      name: 'Companies',
-      href: '/website/users',
-      icon: 'Users',
+      name: 'Audits',
+      href: '/website/audits',
+      icon: 'FileCheck',
       permission: PERMISSIONS.VIEW_USERS,
-      children: [
-        { name: 'All Companies', href: '/website/users', icon: 'List', permission: PERMISSIONS.VIEW_USERS },
-      ]
+    },
+
+    // Compliance
+    {
+      name: 'Compliance',
+      href: '/website/compliance',
+      icon: 'Shield',
+      permission: PERMISSIONS.VIEW_USERS,
     },
 
     // Reports
@@ -123,20 +129,22 @@ export const NAVIGATION: Record<string, NavItem[]> = {
       icon: 'BarChart3',
       permission: PERMISSIONS.VIEW_ANALYTICS,
       children: [
-        { name: 'Overview', href: '/website/reports', icon: 'PieChart', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'TDS Report', href: '/website/reports/tds', icon: 'FileText', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'Company PAN Register Report', href: '/website/reports/company-pan-register', icon: 'FileCheck', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'Company Document Register', href: '/website/reports/company-document-register', icon: 'FolderTree', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'Pending Tax Report', href: '/website/reports/pending-tax', icon: 'Clock', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'Tax Payment History', href: '/website/reports/tax-payment-history', icon: 'Receipt', permission: PERMISSIONS.VIEW_REVENUE },
-        { name: 'Compliance Status Report', href: '/website/reports/compliance-status', icon: 'ToggleLeft', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'Company Registration Report', href: '/website/reports/company-registration', icon: 'FileText', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'GST Filing Report', href: '/website/reports/gst-filing', icon: 'Receipt', permission: PERMISSIONS.VIEW_REVENUE },
-        { name: 'Document Expiry Report', href: '/website/reports/document-expiry', icon: 'Clock', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Governance Summary', href: '/website/reports/governance-summary', icon: 'PieChart', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Policy Report', href: '/website/reports/policy', icon: 'FileText', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Policy Acknowledgement', href: '/website/reports/acknowledgement', icon: 'UserCheck', permission: PERMISSIONS.VIEW_ANALYTICS },
         { name: 'Audit Report', href: '/website/reports/audit', icon: 'FileCheck', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'User Activity Report', href: '/website/reports/user-activity', icon: 'Users', permission: PERMISSIONS.VIEW_ANALYTICS },
-        { name: 'ROC MCA Report', href: '/website/reports/roc', icon: 'FileCheck', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Compliance Issue Report', href: '/website/reports/compliance', icon: 'Shield', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Employee Governance Report', href: '/website/reports/employee-governance', icon: 'Users', permission: PERMISSIONS.VIEW_ANALYTICS },
+        { name: 'Custom Report Builder', href: '/website/reports/custom-builder', icon: 'Settings2', permission: PERMISSIONS.VIEW_ANALYTICS },
       ]
+    },
+
+    // Settings
+    {
+      name: 'Settings',
+      href: '/website/settings',
+      icon: 'Settings',
+      permission: PERMISSIONS.VIEW_SETTINGS,
     },
   ],
   tracker: [
