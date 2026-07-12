@@ -103,24 +103,27 @@ export async function GET(_request: NextRequest) {
 
     // --- Diversity Index (Shannon Index) ---
     // H = -Σ(pi * ln(pi)) where pi is the proportion of each group
-    // We compute it over gender distribution as the primary diversity dimension
-    const allDistributions = [genderDistribution, ethnicityDistribution];
-    let shannonSum = 0;
-    let categoriesCount = 0;
-
-    for (const dist of allDistributions) {
-      for (const item of dist) {
-        const pi = item.count / totalEmployees;
-        if (pi > 0) {
-          shannonSum += -pi * Math.log(pi);
-          categoriesCount++;
-        }
-      }
+    
+    // Gender Evenness
+    let genderShannon = 0;
+    let genderCats = 0;
+    for (const item of genderDistribution) {
+      const pi = item.count / totalEmployees;
+      if (pi > 0) { genderShannon += -pi * Math.log(pi); genderCats++; }
     }
+    const genderEvenness = genderCats > 1 ? genderShannon / Math.log(genderCats) : 1;
 
-    // Normalize: evenness = H / ln(S) where S is number of categories
-    const maxEntropy = categoriesCount > 1 ? Math.log(categoriesCount) : 1;
-    const diversityIndex = parseFloat((shannonSum / maxEntropy).toFixed(4));
+    // Ethnicity Evenness
+    let ethShannon = 0;
+    let ethCats = 0;
+    for (const item of ethnicityDistribution) {
+      const pi = item.count / totalEmployees;
+      if (pi > 0) { ethShannon += -pi * Math.log(pi); ethCats++; }
+    }
+    const ethEvenness = ethCats > 1 ? ethShannon / Math.log(ethCats) : 1;
+
+    // Average the evenness scores
+    const diversityIndex = parseFloat(((genderEvenness + ethEvenness) / 2).toFixed(4));
 
     return NextResponse.json({
       data: {

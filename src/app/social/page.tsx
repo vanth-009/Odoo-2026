@@ -95,23 +95,30 @@ export default function Social() {
         <h3 className="font-bold text-lg mb-4">Active CSR Initiatives</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {activities.slice(0, 4).map((activity) => (
-            <div key={activity.id} className="erp-panel p-5 rounded-2xl border-l-4 border-sky-500/50 hover:border-sky-500 transition-all flex flex-col justify-between shadow-sm">
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-bold text-base mb-1 truncate flex-1" title={activity.title}>{activity.title}</h4>
-                  <Heart size={16} className="text-sky-500 shrink-0 mt-0.5" />
+            <div key={activity.id} className="erp-panel rounded-2xl border-l-4 border-sky-500/50 hover:border-sky-500 transition-all flex flex-col shadow-sm overflow-hidden">
+              {activity.imageUrl && (
+                <div className="w-full h-32 bg-muted relative shrink-0">
+                  <img src={activity.imageUrl} alt={activity.title} className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs text-muted-foreground font-mono">{activity._count?.participations || Math.floor(Math.random() * 50)} joined</p>
-                <p className="text-[10px] font-mono font-bold mt-3 uppercase tracking-widest text-primary bg-primary/10 inline-block px-2 py-0.5 rounded">
-                  {activity.status === 'COMPLETED' ? 'Evidence Required' : 'Open'}
-                </p>
+              )}
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-bold text-base mb-1 truncate flex-1" title={activity.title}>{activity.title}</h4>
+                    <Heart size={16} className="text-sky-500 shrink-0 mt-0.5" />
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono">{activity._count?.participations || 0} joined</p>
+                  <p className="text-[10px] font-mono font-bold mt-3 uppercase tracking-widest text-primary bg-primary/10 inline-block px-2 py-0.5 rounded">
+                    {activity.status === 'COMPLETED' ? 'Evidence Required' : 'Open'}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => toast(`Request to join ${activity.title} dispatched.`, "success")}
+                  className="w-full bg-sky-500 hover:bg-sky-400 text-white py-2.5 rounded-lg font-bold transition-colors mt-6 shadow-[0_0_15px_rgba(14,165,233,0.4)]"
+                >
+                  Join
+                </button>
               </div>
-              <button 
-                onClick={() => toast(`Request to join ${activity.title} dispatched.`, "success")}
-                className="mt-5 w-full bg-sky-500 text-white hover:bg-sky-400 py-1.5 rounded-lg font-bold text-sm transition-all shadow-[0_0_10px_rgba(14,165,233,0.3)]"
-              >
-                Join
-              </button>
             </div>
           ))}
         </div>
