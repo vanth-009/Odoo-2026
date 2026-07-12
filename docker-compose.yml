@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend2
+    container_name: backend
+    ports:
+      - "5000:5000"   # ✅ expose backend
+    environment:
+      - MONGO_URI=mongodb+srv://Shiv:Cluster7077@companyumbrella.u4k7zxj.mongodb.net/companyDB?retryWrites=true&w=majority
+      - EMAIL_USER=anilkumarjena4323@gmail.com
+      - EMAIL_PASS=koajskcmzappsikh
+    restart: always
+
+  frontend:
+    build: ./Frontend
+    container_name: frontend
+    ports:
+      - "3000:80"     # ✅ expose frontend
+    depends_on:
+      - backend
+    restart: always
