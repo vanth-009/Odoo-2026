@@ -154,10 +154,10 @@ export default function Social() {
             
             <div className="space-y-6 flex flex-col justify-center pl-2">
               {diversityStats?.genderDistribution?.map((g: any, i: number) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between items-end">
-                    <span className="font-bold text-sm">{g.gender} Representation</span>
-                    <span className="font-mono text-sm font-extrabold">{g.percentage}%</span>
+                <div key={g.gender} className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold text-sm">{g.gender.charAt(0).toUpperCase() + g.gender.slice(1).toLowerCase()} Representation</span>
+                    <span className="font-mono text-xs font-bold">{g.percentage}%</span>
                   </div>
                   <div className="w-full bg-muted h-2 rounded-full overflow-hidden shadow-inner">
                     <div className="bg-sky-500 h-full rounded-full shadow-[0_0_8px_rgba(14,165,233,0.8)]" style={{ width: `${g.percentage}%` }}></div>
