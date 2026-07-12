@@ -1,0 +1,62 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Department {
+  id              String              @id @default(uuid())
+  name            String              @unique
+  targetEmissions Float
+  score           Int                 @default(100)
+  status          String              @default("On Track")
+  trend           String              @default("down")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  transactions    CarbonTransaction[]
+  goals           SustainabilityGoal[]
+}
+
+model EmissionFactor {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  value     Float
+  unit      String
+  type      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CarbonTransaction {
+  id           String     @id @default(uuid())
+  txId         String     @unique
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  operation    String
+  product      String
+  carbon       Float
+  timestamp    DateTime   @default(now())
+  status       String     @default("Approved")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model SustainabilityGoal {
+  id           String     @id @default(uuid())
+  name         String
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  owner        String
+  progress     Float      @default(0)
+  target       Float
+  remaining    Float
+  deadline     DateTime
+  status       String     @default("On Track")
+  risk         String     @default("Low")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
