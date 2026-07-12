@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, AlertTriangle, ShieldAlert, FileText, CheckCircle, 
-  X, ExternalLink, Image, FileCode, UploadCloud, Check, HelpCircle
+  X, ExternalLink, Image, FileCode, UploadCloud, Check, HelpCircle, 
+  ArrowRight, ShieldCheck, User, Sparkles
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -22,10 +23,11 @@ interface ComplianceIssue {
   title: string;
   description: string;
   severity: 'HIGH' | 'MEDIUM' | 'LOW';
-  status: 'OPEN' | 'UNDER_INVESTIGATION' | 'REMEDIATED' | 'ACCEPTED_RISK';
+  status: 'OPEN' | 'UNDER_INVESTIGATION' | 'REMEDIATED' | 'RESOLVED' | 'CLOSED' | 'ACCEPTED_RISK';
   remediationDeadline: string;
   remediatedAt: string | null;
   remediationOwner: string;
+  resolution: string | null;
   evidence: Evidence[];
 }
 
@@ -36,6 +38,10 @@ export default function CompliancePage() {
   const [severityFilter, setCategoryFilter] = useState('ALL');
   const [selectedIssue, setSelectedIssue] = useState<ComplianceIssue | null>(null);
   const [isEvidenceModalOpen, setIsEvidenceModalOpen] = useState(false);
+
+  // Resolution Form States
+  const [resolutionNotes, setResolutionNotes] = useState('');
+  const [isSubmittingResolution, setIsSubmittingResolution] = useState(false);
 
   // Form State for new Evidence
   const [newEvidence, setNewEvidence] = useState({
@@ -56,11 +62,12 @@ export default function CompliancePage() {
       const res = await fetch('/api/governance/compliance');
       if (res.ok) {
         const json = await res.json();
-        setIssues(json.data || []);
+        const list = json.data || [];
+        setIssues(list);
         
-        // Retain selected issue references if still valid
+        // Refresh selected issue references if active
         if (selectedIssue) {
-          const match = (json.data || []).find((i: any) => i.id === selectedIssue.id);
+          const match = list.find((i: any) => i.id === selectedIssue.id);
           if (match) setSelectedIssue(match);
         }
       }
@@ -82,7 +89,6 @@ export default function CompliancePage() {
       setIsUploading(true);
       setUploadProgress(10);
       
-      // Simulate premium file upload progress
       const interval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 100) {
@@ -92,7 +98,7 @@ export default function CompliancePage() {
           }
           return prev + 25;
         });
-      }, 200);
+      }, 150);
     }
   };
 
@@ -100,12 +106,11 @@ export default function CompliancePage() {
     e.preventDefault();
     if (!selectedIssue) return;
     if (!selectedFile) {
-      toast.error('Please select an evidence file to upload.');
+      toast.error('Please select an evidence file.');
       return;
     }
 
     try {
-      // Mock generated path representation
       const fileExtension = selectedFile.name.split('.').pop() || 'pdf';
       const fileUrl = `/uploads/compliance_${selectedIssue.id.slice(0, 5)}_${Date.now()}.${fileExtension}`;
 
@@ -124,11 +129,9 @@ export default function CompliancePage() {
       if (res.ok) {
         toast.success('Evidence proof uploaded successfully!');
         setIsEvidenceModalOpen(false);
-        
-        // Refresh items list
         await fetchData();
 
-        // Reset upload form
+        // Reset
         setNewEvidence({
           title: '',
           description: '',
@@ -146,6 +149,63 @@ export default function CompliancePage() {
     }
   };
 
+  // Submit Resolution notes (Transitions state to RESOLVED)
+  const handleResolveIssueSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedIssue) return;
+    if (!resolutionNotes.trim()) {
+      toast.error('Please provide details on how the issue was resolved.');
+      return;
+    }
+
+    setIsSubmittingResolution(true);
+    try {
+      const res = await fetch('/api/governance/compliance/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issueId: selectedIssue.id,
+          resolution: resolutionNotes
+        })
+      });
+
+      if (res.ok) {
+        toast.success('Compliance issue resolved successfully!');
+        setResolutionNotes('');
+        await fetchData();
+      } else {
+        toast.error('Failed to resolve issue.');
+      }
+    } catch (err) {
+      console.error('Error resolving', err);
+      toast.error('Server connection failed.');
+    } finally {
+      setIsSubmittingResolution(false);
+    }
+  };
+
+  // Verify proof and close compliance issue (Transitions state to CLOSED)
+  const handleVerifyAndClose = async () => {
+    if (!selectedIssue) return;
+    try {
+      const res = await fetch('/api/governance/compliance/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issueId: selectedIssue.id })
+      });
+
+      if (res.ok) {
+        toast.success('Compliance issue verified and officially closed!');
+        await fetchData();
+      } else {
+        toast.error('Failed to verify and close issue.');
+      }
+    } catch (err) {
+      console.error('Error closing', err);
+      toast.error('Server connection failed.');
+    }
+  };
+
   const filteredIssues = issues.filter(issue => {
     const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           issue.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -154,29 +214,48 @@ export default function CompliancePage() {
   });
 
   const getSeverityBadgeClass = (severity: string) => {
-    switch (severity) {
+    switch (severity?.toUpperCase()) {
       case 'HIGH':
+      case 'CRITICAL':
         return 'bg-red-500/10 text-red-400 border-red-500/20';
       case 'MEDIUM':
         return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'LOW':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
     }
   };
 
   const getStatusBadgeClass = (status: string) => {
-    switch (status) {
+    switch (status?.toUpperCase()) {
       case 'REMEDIATED':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+      case 'RESOLVED':
+        return 'bg-emerald-500/10 text-emerald-450 border border-emerald-500/20';
+      case 'CLOSED':
+        return 'bg-zinc-800 text-zinc-400 border border-zinc-700';
       case 'UNDER_INVESTIGATION':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+        return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
       case 'OPEN':
-        return 'bg-red-500/10 text-red-400 border-red-500/20';
+        return 'bg-red-500/10 text-red-400 border border-red-500/20';
       default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        return 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
     }
+  };
+
+  // Determine active steps for compliance workflow
+  const getWorkflowSteps = (issue: ComplianceIssue) => {
+    const isAssigned = issue.remediationOwner && issue.remediationOwner !== 'Unassigned' && issue.remediationOwner !== 'System Admin';
+    const isEvidenceAdded = issue.evidence && issue.evidence.length > 0;
+    const isResolved = issue.status === 'RESOLVED' || issue.status === 'REMEDIATED' || issue.status === 'CLOSED';
+    const isClosed = issue.status === 'CLOSED';
+
+    return [
+      { key: 'reported', label: 'Reported', active: true },
+      { key: 'assigned', label: 'Assigned', active: !!isAssigned },
+      { key: 'evidence', label: 'Evidence Added', active: isEvidenceAdded },
+      { key: 'resolved', label: 'Resolved', active: isResolved },
+      { key: 'verified', label: 'Verified', active: isClosed },
+      { key: 'closed', label: 'Closed', active: isClosed },
+    ];
   };
 
   return (
@@ -196,14 +275,14 @@ export default function CompliancePage() {
             placeholder="Search compliance issues by title or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+            className="w-full bg-black/20 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none"
           />
         </div>
         <div className="relative w-48">
           <select
             value={severityFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 transition-colors"
+            className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50"
           >
             <option value="ALL" className="bg-slate-900">All Severities</option>
             <option value="HIGH" className="bg-slate-900">High Risk</option>
@@ -219,11 +298,13 @@ export default function CompliancePage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl flex flex-col">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          
+          {/* Left: Issues List Table */}
+          <div className="xl:col-span-2 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl flex flex-col">
             <div className="overflow-x-auto flex-1">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-slate-400 uppercase bg-black/20">
+              <table className="w-full text-xs text-left">
+                <thead className="text-zinc-400 uppercase bg-black/25">
                   <tr>
                     <th className="px-6 py-4 rounded-tl-lg font-medium">Compliance Issue</th>
                     <th className="px-6 py-4 font-medium">Severity</th>
@@ -252,17 +333,17 @@ export default function CompliancePage() {
                         <span>{issue.title}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getSeverityBadgeClass(issue.severity)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${getSeverityBadgeClass(issue.severity)}`}>
                           {issue.severity}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-300">{issue.remediationOwner}</td>
+                      <td className="px-6 py-4 text-slate-350">{issue.remediationOwner}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeClass(issue.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadgeClass(issue.status)}`}>
                           {issue.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-300 font-mono text-xs">
+                      <td className="px-6 py-4 text-slate-350 font-mono text-[10.5px]">
                         {issue.remediationDeadline ? new Date(issue.remediationDeadline).toLocaleDateString() : 'N/A'}
                       </td>
                     </tr>
@@ -272,62 +353,85 @@ export default function CompliancePage() {
             </div>
           </div>
 
-          {/* Issue Details & Evidence Panel */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl flex flex-col min-h-[400px]">
+          {/* Right: Issue Details & Workflow Pane */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-md shadow-xl flex flex-col min-h-[500px]">
             {selectedIssue ? (
-              <div className="space-y-6 flex flex-col h-full">
+              <div className="space-y-6 flex flex-col h-full overflow-y-auto max-h-[700px] pr-1">
                 
                 {/* Details Header */}
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start border-b border-white/5 pb-4">
                   <div>
-                    <h4 className="text-base font-bold text-white mb-1">{selectedIssue.title}</h4>
-                    <p className="text-xs text-slate-400">Remediation Owner: {selectedIssue.remediationOwner}</p>
+                    <h4 className="text-sm font-bold text-white mb-1.5 leading-snug">{selectedIssue.title}</h4>
+                    <p className="text-[10px] text-zinc-400 flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-zinc-550" /> Remediation Owner: {selectedIssue.remediationOwner}</p>
                   </div>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getSeverityBadgeClass(selectedIssue.severity)}`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold border ${getSeverityBadgeClass(selectedIssue.severity)}`}>
                     {selectedIssue.severity}
                   </span>
                 </div>
 
-                <div className="bg-black/20 border border-white/5 p-3.5 rounded-lg">
-                  <span className="block text-[9px] text-zinc-500 uppercase tracking-widest font-bold mb-1">Issue Description</span>
-                  <p className="text-xs text-slate-300 leading-relaxed">{selectedIssue.description}</p>
+                {/* VISUAL WORKFLOW PROGRESS TIMELINE */}
+                <div className="bg-black/35 p-4 rounded-xl border border-white/5">
+                  <span className="block text-[8.5px] font-bold text-zinc-550 uppercase tracking-widest mb-3">Compliance Issue Workflow</span>
+                  <div className="flex flex-col gap-3">
+                    {getWorkflowSteps(selectedIssue).map((step, idx, arr) => (
+                      <div key={step.key} className="flex items-center gap-3.5 text-xs">
+                        {/* Circle badge */}
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[9px] border transition-all ${
+                          step.active 
+                            ? 'bg-emerald-500 border-emerald-400 text-black shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                            : 'bg-zinc-900 border-white/10 text-zinc-500'
+                        }`}>
+                          {step.active ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                        </div>
+                        {/* Label */}
+                        <div className="flex-1">
+                          <span className={`font-semibold ${step.active ? 'text-white' : 'text-zinc-500'}`}>{step.label}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Evidence Required Section */}
-                <div className="flex-1 flex flex-col border-t border-white/5 pt-4">
-                  
-                  <div className="flex justify-between items-center mb-3">
+                <div className="bg-black/20 border border-white/5 p-3.5 rounded-lg text-xs leading-relaxed text-slate-350">
+                  <span className="block text-[8.5px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5">Description</span>
+                  <p>{selectedIssue.description}</p>
+                </div>
+
+                {/* Evidence Proof required list */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Evidence Required</span>
-                      <span className="text-xs font-bold text-white mt-0.5">Proof list ({selectedIssue.evidence?.length || 0})</span>
+                      <span className="text-[9px] font-bold text-zinc-550 uppercase tracking-widest">Evidence Required</span>
+                      <span className="text-xs font-bold text-white mt-0.5">Proof File Registry ({selectedIssue.evidence?.length || 0})</span>
                     </div>
-                    <button 
-                      onClick={() => setIsEvidenceModalOpen(true)}
-                      className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center font-bold gap-1 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20"
-                    >
-                      <Plus className="w-3.5 h-3.5" /> Submit Proof
-                    </button>
+                    {selectedIssue.status !== 'CLOSED' && (
+                      <button 
+                        onClick={() => setIsEvidenceModalOpen(true)}
+                        className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Submit Proof
+                      </button>
+                    )}
                   </div>
                   
-                  <div className="space-y-3 overflow-y-auto max-h-[220px] pr-1">
+                  <div className="space-y-2.5 max-h-[180px] overflow-y-auto pr-1">
                     {selectedIssue.evidence?.length === 0 ? (
-                      <div className="p-8 text-center border border-dashed border-white/10 rounded-xl bg-white/[0.01]">
-                        <HelpCircle className="w-8 h-8 mx-auto opacity-30 text-zinc-450 mb-2" />
-                        <p className="text-xs text-zinc-550 italic">No evidence proof uploaded. remediation status remains open.</p>
+                      <div className="p-4 text-center border border-dashed border-white/10 rounded-xl bg-white/[0.01]">
+                        <HelpCircle className="w-6 h-6 mx-auto opacity-30 text-zinc-450 mb-1" />
+                        <p className="text-[10px] text-zinc-550 italic">No proof files submitted yet.</p>
                       </div>
                     ) : (
                       selectedIssue.evidence.map(item => (
-                        <div key={item.id} className="p-3 bg-black/20 border border-white/5 rounded-lg flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 shrink-0">
+                        <div key={item.id} className="p-3 bg-black/25 border border-white/5 rounded-lg flex items-center justify-between gap-3 text-xs">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded bg-white/5 border border-white/10 flex items-center justify-center text-zinc-450 shrink-0">
                               {item.fileType === 'image' && <Image className="w-4 h-4 text-amber-400" />}
                               {item.fileType === 'pdf' && <FileText className="w-4 h-4 text-emerald-400" />}
                               {item.fileType === 'document' && <FileCode className="w-4 h-4 text-blue-400" />}
                             </div>
-                            <div className="flex flex-col">
-                              <span className="font-semibold text-xs text-slate-100">{item.title}</span>
-                              <span className="text-[9px] text-slate-450 truncate max-w-[150px]">{item.description}</span>
-                              <span className="text-[8px] text-zinc-500 mt-1">Uploaded by {item.uploadedBy}</span>
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-bold text-slate-200 truncate max-w-[120px]">{item.title}</span>
+                              <span className="text-[8.5px] text-zinc-500 truncate max-w-[120px]">{item.description}</span>
                             </div>
                           </div>
                           {item.fileUrl && (
@@ -335,7 +439,7 @@ export default function CompliancePage() {
                               href={item.fileUrl} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className="p-1.5 hover:bg-white/10 rounded text-emerald-400 transition-colors"
+                              className="p-1 hover:bg-white/10 rounded text-emerald-400 shrink-0"
                               title="Download Proof File"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -347,11 +451,63 @@ export default function CompliancePage() {
                   </div>
                 </div>
 
+                {/* Resolution Workflow Block */}
+                <div className="bg-white/[0.01] p-4 rounded-xl border border-white/5 text-xs space-y-3.5">
+                  <span className="block text-[8.5px] font-bold text-zinc-550 uppercase tracking-widest">Remediation Status &amp; Resolution</span>
+                  
+                  {selectedIssue.status === 'CLOSED' ? (
+                    <div className="space-y-2">
+                      <p className="text-zinc-350 italic font-medium">"{selectedIssue.resolution}"</p>
+                      <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] rounded-lg font-bold flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Remediation verified & closed on {selectedIssue.remediatedAt ? new Date(selectedIssue.remediatedAt).toLocaleDateString() : 'N/A'}</span>
+                      </div>
+                    </div>
+                  ) : selectedIssue.status === 'RESOLVED' || selectedIssue.status === 'REMEDIATED' ? (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+                        <span className="block text-[8.5px] font-bold text-zinc-500 mb-1">Submitted Resolution Summary</span>
+                        <p className="text-zinc-300">"{selectedIssue.resolution}"</p>
+                      </div>
+                      
+                      <div className="border-t border-white/5 pt-3 flex flex-col gap-2">
+                        <span className="text-[10px] text-zinc-450 italic">Verify proof evidence files above before closing this compliance risk audit.</span>
+                        <button
+                          type="button"
+                          onClick={handleVerifyAndClose}
+                          className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-bold rounded-lg text-xs flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/10 transition-colors"
+                        >
+                          <ShieldCheck className="w-4 h-4" /> Verify Proof & Close Issue
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Form to resolve issue */
+                    <form onSubmit={handleResolveIssueSubmit} className="space-y-2.5">
+                      <label className="block text-[9px] text-zinc-400 font-semibold">Enter Action Resolution Notes</label>
+                      <textarea
+                        rows={2}
+                        value={resolutionNotes}
+                        onChange={(e) => setResolutionNotes(e.target.value)}
+                        placeholder="Detail the steps taken to fix the compliance issue..."
+                        className="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none text-xs"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmittingResolution || !resolutionNotes.trim()}
+                        className="w-full py-2 bg-emerald-550 border border-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-450 font-bold rounded-lg text-xs flex items-center justify-center gap-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {isSubmittingResolution ? 'Submitting...' : 'Resolve Issue (Remediate)'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500">
                 <AlertTriangle className="w-12 h-12 mb-2 text-slate-650" />
-                <h4 className="font-medium text-sm text-slate-350 mb-1">No Issue Selected</h4>
+                <h4 className="font-semibold text-sm text-slate-350 mb-1">No Issue Selected</h4>
                 <p className="text-xs text-slate-500 max-w-[200px]">Select an active compliance risk alert from the table to view remediation status, deadline dates, and linked evidence items.</p>
               </div>
             )}
@@ -381,7 +537,6 @@ export default function CompliancePage() {
             
             <form onSubmit={handleAddEvidence} className="p-6 space-y-4">
               
-              {/* Proof Type selection (Image, PDF, Document) */}
               <div>
                 <label className="block text-[10px] font-bold text-zinc-450 uppercase mb-2">Select Proof Type Required</label>
                 <div className="grid grid-cols-3 gap-3">
@@ -473,7 +628,7 @@ export default function CompliancePage() {
                     <UploadCloud className="w-8 h-8 text-zinc-550" />
                     <div className="text-center">
                       <span className="text-xs font-bold text-white block">Click to select files</span>
-                      <span className="text-[10px] text-zinc-500 mt-0.5 block">
+                      <span className="text-[10px] text-zinc-550 mt-0.5 block">
                         {selectedFileType === 'image' && 'Supports PNG, JPG, GIF'}
                         {selectedFileType === 'pdf' && 'Supports PDF certificate files'}
                         {selectedFileType === 'document' && 'Supports DOC, DOCX, XLS, XLSX, TXT'}
@@ -499,7 +654,7 @@ export default function CompliancePage() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-white truncate max-w-[200px]">{selectedFile.name}</span>
-                        <span className="text-[9px] text-zinc-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                        <span className="text-[9px] text-zinc-550">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
                       </div>
                     </div>
                     <button
@@ -538,7 +693,7 @@ export default function CompliancePage() {
                     setIsEvidenceModalOpen(false);
                     setSelectedFile(null);
                   }}
-                  className="px-4 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/5 transition-colors font-semibold"
+                  className="px-4 py-2 rounded-lg text-xs text-slate-350 hover:text-white hover:bg-white/5 transition-colors font-semibold"
                 >
                   Cancel
                 </button>

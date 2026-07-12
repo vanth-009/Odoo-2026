@@ -9,6 +9,11 @@ export async function GET(_request: NextRequest) {
       include: {
         findings: true,
         auditorEmployee: true,
+        complianceIssues: {
+          include: {
+            evidences: true
+          }
+        }
       },
       orderBy: { startDate: 'desc' },
     });
@@ -43,6 +48,38 @@ export async function GET(_request: NextRequest) {
           description: f.description || '',
           severity: f.severity,
           status: f.status,
+        })),
+        complianceIssues: a.complianceIssues.map(i => ({
+          id: i.id,
+          title: i.title,
+          description: i.description || '',
+          severity: i.severity,
+          status: i.status,
+          dueDate: i.dueDate ? i.dueDate.toISOString() : null,
+          resolution: i.resolution || '',
+          closedDate: i.closedDate ? i.closedDate.toISOString() : null,
+          evidences: i.evidences.map(e => {
+            let parsedTitle = 'Evidence Document';
+            let parsedDesc = '';
+            let fileType = 'pdf';
+            try {
+              const parsed = JSON.parse(e.fileType);
+              parsedTitle = parsed.title || parsedTitle;
+              parsedDesc = parsed.description || parsedDesc;
+              fileType = parsed.fileType || fileType;
+            } catch {
+              parsedTitle = e.fileType || parsedTitle;
+            }
+            return {
+              id: e.id,
+              title: parsedTitle,
+              description: parsedDesc,
+              fileUrl: e.fileUrl,
+              fileType,
+              uploadedBy: e.uploadedBy,
+              createdAt: e.createdAt.toISOString()
+            };
+          })
         }))
       };
     });

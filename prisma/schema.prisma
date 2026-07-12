@@ -118,6 +118,12 @@ model Employee {
   auditedAudits          Audit[]
   complianceIssues       ComplianceIssue[]
   notifications          Notification[]
+
+  // Gamification Relations
+  challengeParticipations ChallengeParticipation[]
+  xpTransactions          XPTransaction[]
+  earnedBadges            EmployeeBadge[]
+  rewardRedemptions       RewardRedemption[]
 }
 
 // ─── Environmental Module Models (Intact) ───────────────────────────────────
@@ -504,4 +510,102 @@ model Notification {
   isRead        Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// ─── Gamification Module Models ──────────────────────────────────────────────
+
+model Challenge {
+  id               String                  @id @default(uuid())
+  title            String
+  category         String
+  description      String?                 @db.Text
+  difficulty       String                  @default("Medium") // Easy, Medium, Hard
+  evidenceRequired String?                 @db.Text
+  xp               Int                     @default(100)
+  startDate        DateTime                @default(now())
+  deadline         DateTime
+  status           String                  @default("Draft") // Draft, Active, Under Review, Completed, Archived
+  createdBy        String                  @default("Admin")
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  participations   ChallengeParticipation[]
+  xpTransactions   XPTransaction[]
+}
+
+model ChallengeParticipation {
+  id             String         @id @default(uuid())
+  challengeId    String
+  challenge      Challenge      @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  progress       Int            @default(0) // Percentage progress 0 to 100
+  proof          String?        @db.Text // Proof summary or uploaded evidence link
+  approvalStatus String         @default("PENDING") // PENDING, APPROVED, REJECTED, RESUBMIT_REQUESTED
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  approvedBy     String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([challengeId, employeeId])
+}
+
+model XPTransaction {
+  id           String     @id @default(uuid())
+  employeeId   String
+  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  challengeId  String?
+  challenge    Challenge? @relation(fields: [challengeId], references: [id], onDelete: SetNull)
+  xp           Int
+  activityName String // e.g. "Completed Challenge: Water Saving" or "Manual Adjustment"
+  createdAt    DateTime   @default(now())
+}
+
+model Badge {
+  id                        String          @id @default(uuid())
+  name                      String          @unique
+  description               String?         @db.Text
+  icon                      String          @default("🏅") // Emoji representation
+  unlockRule                String          @db.Text // Rule description text
+  xpThreshold               Int             @default(0)
+  challengesCountThreshold  Int             @default(0)
+  status                    String          @default("ACTIVE") // ACTIVE, DISABLED
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  employeeBadges            EmployeeBadge[]
+}
+
+model EmployeeBadge {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  badgeId    String
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt   DateTime @default(now())
+
+  @@unique([employeeId, badgeId])
+}
+
+model Reward {
+  id          String             @id @default(uuid())
+  name        String             @unique
+  costXp      Int
+  stock       Int                @default(10)
+  status      String             @default("ACTIVE") // ACTIVE, DISABLED
+  description String?            @db.Text
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  redemptions RewardRedemption[]
+}
+
+model RewardRedemption {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  rewardId   String
+  reward     Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  xpUsed     Int
+  status     String   @default("PENDING") // PENDING, APPROVED, DELIVERED, REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
