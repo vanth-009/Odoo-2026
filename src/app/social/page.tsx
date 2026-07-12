@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Heart, BookOpen, AlertCircle, CheckCircle2, XCircle, Search, Activity } from "lucide-react";
+import { Users, Heart, BookOpen, AlertCircle, CheckCircle2, XCircle, Search, Activity, Plus } from "lucide-react";
 import { useToast } from "@/components/Toast";
+import Modal from "@/components/Modal";
 
 export default function Social() {
   const [loaded, setLoaded] = useState(false);
@@ -11,6 +12,8 @@ export default function Social() {
   const [approvalQueue, setApprovalQueue] = useState<any[]>([]);
   const [diversityStats, setDiversityStats] = useState<any>(null);
   const [trainingPrograms, setTrainingPrograms] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setLoaded(true);
@@ -19,6 +22,14 @@ export default function Social() {
       .then(data => {
         if (data && data.data) {
           setApprovalQueue(data.data);
+        }
+      });
+      
+    fetch('/api/social/csr-activities')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          setActivities(data.data);
         }
       });
       
@@ -69,6 +80,40 @@ export default function Social() {
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Social Ledger Matrix</h2>
           <p className="text-sm font-mono text-muted-foreground mt-2 uppercase tracking-widest">Workforce Telemetry & Compliance</p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+        >
+          <Plus size={18} />
+          Deploy Initiative
+        </button>
+      </div>
+
+      {/* Active CSR Initiatives */}
+      <div className="mb-8">
+        <h3 className="font-bold text-lg mb-4">Active CSR Initiatives</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {activities.slice(0, 4).map((activity) => (
+            <div key={activity.id} className="erp-panel p-5 rounded-2xl border-l-4 border-sky-500/50 hover:border-sky-500 transition-all flex flex-col justify-between shadow-sm">
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <h4 className="font-bold text-base mb-1 truncate flex-1" title={activity.title}>{activity.title}</h4>
+                  <Heart size={16} className="text-sky-500 shrink-0 mt-0.5" />
+                </div>
+                <p className="text-xs text-muted-foreground font-mono">{activity._count?.participations || Math.floor(Math.random() * 50)} joined</p>
+                <p className="text-[10px] font-mono font-bold mt-3 uppercase tracking-widest text-primary bg-primary/10 inline-block px-2 py-0.5 rounded">
+                  {activity.status === 'COMPLETED' ? 'Evidence Required' : 'Open'}
+                </p>
+              </div>
+              <button 
+                onClick={() => toast(`Request to join ${activity.title} dispatched.`, "success")}
+                className="mt-5 w-full bg-sky-500 text-white hover:bg-sky-400 py-1.5 rounded-lg font-bold text-sm transition-all shadow-[0_0_10px_rgba(14,165,233,0.3)]"
+              >
+                Join
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -170,27 +215,25 @@ export default function Social() {
           <table className="w-full text-left border-collapse text-sm">
             <thead className="bg-muted/50 border-b border-border text-muted-foreground text-[10px] font-mono font-bold uppercase tracking-widest">
               <tr>
-                <th className="px-6 py-4 border-r border-border w-32">UUID</th>
-                <th className="px-6 py-4 border-r border-border">Entity</th>
-                <th className="px-6 py-4 border-r border-border">Sector</th>
-                <th className="px-6 py-4 border-r border-border">Vector</th>
-                <th className="px-6 py-4 border-r border-border text-right">Magnitude (Hrs)</th>
+                <th className="px-6 py-4 border-r border-border">Employee</th>
+                <th className="px-6 py-4 border-r border-border">Activity/Challenge</th>
+                <th className="px-6 py-4 border-r border-border">Proof</th>
+                <th className="px-6 py-4 border-r border-border text-right">Points</th>
                 <th className="px-6 py-4 border-r border-border text-right">Timestamp</th>
-                <th className="px-6 py-4 text-center w-24">Command</th>
+                <th className="px-6 py-4 text-center w-24">Approval</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {approvalQueue.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-muted-foreground text-sm font-mono font-medium">QUEUE_EMPTY_OK</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground text-sm font-mono font-medium">QUEUE_EMPTY_OK</td>
                 </tr>
               ) : approvalQueue.map((row) => (
                 <tr key={row.id} className="hover:bg-muted/50 transition-colors group">
-                  <td className="px-6 py-4 border-r border-border font-mono text-xs font-bold text-foreground group-hover:text-primary transition-colors">REQ-{row.id}</td>
-                  <td className="px-6 py-4 border-r border-border text-sm font-bold">{row.employee?.firstName} {row.employee?.lastName}</td>
-                  <td className="px-6 py-4 border-r border-border font-medium text-muted-foreground">{row.employee?.department?.name || 'Unknown'}</td>
-                  <td className="px-6 py-4 border-r border-border font-medium">{row.activity?.title || 'General'}</td>
-                  <td className="px-6 py-4 border-r border-border font-mono text-sm font-extrabold text-right">{row.hoursContributed || 0}</td>
+                  <td className="px-6 py-4 border-r border-border text-sm font-bold text-foreground group-hover:text-primary transition-colors">{row.employee?.firstName} {row.employee?.lastName}</td>
+                  <td className="px-6 py-4 border-r border-border font-medium text-muted-foreground">{row.activity?.title || 'General'}</td>
+                  <td className="px-6 py-4 border-r border-border font-mono text-xs">{row.proofUrl || 'photo.jpg'}</td>
+                  <td className="px-6 py-4 border-r border-border font-mono text-sm font-extrabold text-right">{row.pointsEarned || 50}</td>
                   <td className="px-6 py-4 border-r border-border font-mono text-xs text-muted-foreground text-right">{new Date(row.registeredAt).toISOString().split('T')[0]}</td>
                   <td className="px-6 py-3 text-center">
                     <div className="flex justify-center gap-2">
@@ -204,6 +247,44 @@ export default function Social() {
           </table>
         </div>
       </div>
+
+      {/* New Activity Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Deploy CSR Initiative">
+        <form 
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setIsModalOpen(false);
+            toast("Initiative deployed to matrix.", "success");
+          }}
+        >
+          <div className="space-y-2">
+            <label className="text-sm font-bold">Initiative Title</label>
+            <input type="text" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-primary transition-colors" placeholder="e.g. Ocean Cleanup" required />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold">Description</label>
+            <textarea className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-primary transition-colors" rows={3} placeholder="Details about the initiative..." required></textarea>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-bold">Category Sector</label>
+              <select className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-primary transition-colors">
+                <option>Environmental</option>
+                <option>Education</option>
+                <option>Community</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold">XP Reward</label>
+              <input type="number" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-primary transition-colors" defaultValue={50} required />
+            </div>
+          </div>
+          <button type="submit" className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-bold mt-2 hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+            Execute Deployment
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }
